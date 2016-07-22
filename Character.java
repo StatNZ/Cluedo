@@ -3,15 +3,15 @@
  * Each character has a name and a player is assigned a characters name.
  * No player can be the same character.
  * The solution will contain a Character.
+ *
+ * A character is not specified at any location
  * <p>
  * Created by Jack on 19/07/2016.
  */
 public class Character extends Card {
 
-    private String name;
-
     public Character(String name){
-        this.name = name;
+        super(name);
     }
 
     public String toString(){

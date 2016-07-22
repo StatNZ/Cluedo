@@ -13,7 +13,6 @@ import java.util.*;
  */
 public class Game {
 
-    // testing changes
     private Board[][] board = new Board[26][26];
 
     private List<Card> deck = new ArrayList<>();
@@ -83,6 +82,7 @@ public class Game {
         library.setStartPosition(board);
         billiard.setStartPosition(board);
 
+        // add the rooms to the deck (as they are cards as well
         deck.add(kitchen);
         deck.add(ball);
         deck.add(conservatory);
@@ -115,6 +115,7 @@ public class Game {
         Weapon spanner = new Weapon("Spanner");
         Weapon gun = new Weapon("Revolver");
 
+        // add the cards to the deck
         deck.add(scarlett);
         deck.add(mustard);
         deck.add(green);
@@ -146,7 +147,7 @@ public class Game {
     public void setSolution(){
         int i=0;
         while (i < 3){
-            Card c = getCard();
+            Card c = randomCard();
             solution.add(c);
             deck.remove(c);
         }
@@ -176,14 +177,17 @@ public class Game {
         Node end = new Node(room.getDoor().x,room.getDoor().y,null);
 
         Node path = BFS(start,end);
-        if (path == null)
+        if (path == null) //break out and report an error
             throw new IllegalArgumentException("Path finder has failed");
         List<Position> pathToFollow = new ArrayList<>();
+        addPath(pathToFollow, path);
 
         int i = pathToFollow.size()-1;
         while (nmoves != 0){
             // traverse the list backwards in order to get the
             // correct path
+            player.move(pathToFollow.get(i));
+            i--;
             nmoves--;
         }
 
@@ -220,7 +224,7 @@ public class Game {
             // do BFS LOGIC
             Node n = order.poll();
             visited.add(n);
-            if (n.equals(end)) return n;
+            if (n.equals(end)) return n; // found our path
             else
                 addNeighbours(n,order,visited);
         }
@@ -229,7 +233,8 @@ public class Game {
     }
 
     /**
-     * Here we add our neighbours for our BFS.
+     * Here we add our neighbours for our BFS. Our neighbours are positions that
+     * we are allowed to travel.
      *
      * @param parent
      * @param order
@@ -311,6 +316,18 @@ public class Game {
     }
 
     /**
+     * Return the specified card
+     * @param name
+     * @return
+     */
+    public Card getCard(String name){
+        for (Card c: allCards){
+            System.out.println(c.getName());
+        }
+        return null;
+    }
+
+    /**
      * Each player is dealt a set of cards. Each card dealt to a player
      * will come from a shuffled deck
      */
@@ -318,7 +335,7 @@ public class Game {
         while (!deck.isEmpty())
             for (Player p : players) {
                 if (deck.isEmpty()) break; // this ensures our random doesn't throw an illegaArg.
-                Card c = getCard();
+                Card c = randomCard();
                 p.addCardToInventory(c);
                 deck.remove(c);
                 System.out.println("Card removed = " + c.toString()+" belongs to "+p.toString());
@@ -329,7 +346,7 @@ public class Game {
      * Helper method for getting a random card from the deck
      * @return
      */
-    public Card getCard(){
+    public Card randomCard(){
         int rnd = new Random().nextInt(deck.size());
         return deck.get(rnd);
     }
@@ -341,6 +358,7 @@ public class Game {
 
     public static void main(String[] args) {
         Game game = new Game();
+        game.getCard("stuff");
 
     }
 }

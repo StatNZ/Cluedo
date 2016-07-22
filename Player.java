@@ -37,8 +37,8 @@ public class Player implements Board{
     public Player(String name, Token token, int x, int y){
         this.name = name;
         this.token = token;
-        this.x = x*ratio;
-        this.y = y*ratio;
+        this.x = x;
+        this.y = y;
         inventory = new HashSet<>();
     }
 
@@ -67,12 +67,11 @@ public class Player implements Board{
     /**
      * Move the player to a new position
      *
-     * @param x
-     * @param y
+     * @param p the updated position
      */
-    public void movePlayer(int x, int y){
-        this.x = x;
-        this.y = y;
+    public void move(Position p){
+        this.x = p.x;
+        this.y = p.y;
     }
 
     /**
@@ -98,15 +97,15 @@ public class Player implements Board{
 
     @Override
     public void setStartPosition(Board[][] board) {
-        int x = this.x/ratio;
-        int y = this.y/ratio;
+        int x = this.x;
+        int y = this.y;
         board[x][y] = this;
     }
 
     @Override
     public void draw() {
         if (this.token == Token.MissScarlett)
-            UI.drawString("S",x,y); //.etc
+            UI.drawString("S",x*ratio,y*ratio); //.etc
     }
 
     public String toString(){

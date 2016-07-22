@@ -12,7 +12,7 @@ import ecs100.*;
  */
 public class Room extends Card implements Board{
 
-    private final String name;
+//   private final String name;
     private final int x;
     private final int y;
     private final int width;
@@ -23,11 +23,11 @@ public class Room extends Card implements Board{
     private Door door;
 
     public Room(String name, int x, int y, int width, int height) {
-        this.name = name;
-        this.x = x*ratio;
-        this.y = y*ratio;
-        this.height = height*ratio;
-        this.width = width*ratio;
+        super(name);
+        this.x = x;
+        this.y = y;
+        this.height = height;
+        this.width = width;
     }
 
     public void setDoorLocation(int x, int y) {
@@ -38,10 +38,10 @@ public class Room extends Card implements Board{
 
     @Override
     public void setStartPosition(Board[][] board){
-        int x = this.x/ratio;
-        int y = this.y/ratio;
-        int width = this.width/ratio;
-        int height = this.height/ratio;
+        int x = this.x;
+        int y = this.y;
+        int width = this.width;
+        int height = this.height;
        for (int row=x; row<x+width; row++)
            for (int col=y; col<y+height; col++)
                board[row][col] = this;
@@ -52,7 +52,7 @@ public class Room extends Card implements Board{
 
     @Override
     public void draw(){
-        UI.drawRect(x,y,width,height);
+        UI.drawRect(x*ratio,y*ratio,width*ratio,height*ratio);
         door.draw();
     }
 
