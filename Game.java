@@ -13,6 +13,7 @@ import java.util.*;
  */
 public class Game {
 
+    // testing changes
     private Board[][] board = new Board[26][26];
 
     private List<Card> deck = new ArrayList<>();
