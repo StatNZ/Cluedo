@@ -1,6 +1,5 @@
 
 
-import com.sun.xml.internal.bind.v2.TODO;
 import ecs100.UI;
 
 import java.util.*;
@@ -26,10 +25,9 @@ public class Game {
 
 
     public Game() {
-        createRooms();
         createCards();
-        allCards = deck;
-        //draw();
+        createRooms();
+        setSolution();
     }
 
     public void draw(){
@@ -93,12 +91,6 @@ public class Game {
         deck.add(billiard);
     }
 
-    public void addPlayersToBoard(){
-        for (Player p: players){
-            p.setStartPosition(board);
-        }
-    }
-
     /**
      * Here we set up our characters and weapons for our deck of playing
      * deck which our players will keep in their inventory
@@ -136,6 +128,55 @@ public class Game {
     }
 
     /**
+     * Here we set up our player with their initial position on where they will be
+     * starting on the board, each player is assigned a character in which they will
+     * play throughout the game. This does not necessarily mean that they will have
+     * that character card in their deck.
+     *
+     * @param name
+     * @param token
+     */
+    public Player addPlayer(String name, Player.Token token){
+        switch (token){
+            case MissScarlett://1,17
+                Player p1 = new Player(name,token,1,17);
+                players.add(p1);
+                return p1;
+            case ProfessorPlum://6,25
+                Player p2 = new Player(name, token,6,25);
+                players.add(p2);
+                return p2;
+            case MrsWhite://25/19
+                Player p3 = new Player(name,token,25,19);
+                players.add(p3);
+                return p3;
+            case MrsPeacock:
+                Player p4 = new Player(name,token,24,6);
+                players.add(p4);
+                return p4;
+            case MrGreen:
+                Player p5 = new Player(name,token,17,1);
+                players.add(p5);
+                return p5;
+            case ColonelMustard:
+                Player p6 = new Player(name,token,8,1);
+                players.add(p6);
+                return p6;
+            default:
+                throw new IllegalArgumentException("Player selection was abnormally exited");
+        }
+    }
+
+    /**
+     * Adds all our players to the board/game
+     */
+    public void addPlayersToBoard(){
+        for (Player p: players){
+            p.setStartPosition(board);
+        }
+    }
+
+    /**
      * Get the room by string name;
      * @param roomName
      * @return
@@ -160,12 +201,33 @@ public class Game {
     }
 
     /**
+     * Checks if current position is a door
+     * @param pos
+     * @return
+     */
+    public boolean isDoor(Position pos){
+        if (board[pos.x][pos.y] instanceof Door)
+            return true;
+        return false;
+    }
+
+    /**
+     * Checks if current position is a Room
+     * @return
+     */
+    public boolean isRoom(Position p){
+        if (board[p.x][p.y] instanceof Room)
+            return false;
+        return true;
+    }
+
+    /**
      * Define our solution cards which are randomly chosen and stored in a set.
      * The solution contains 1 Character, 1 Weapon, and 1 Room
      */
     public void setSolution(){
         // probably not the most ideal way to do this
-        Collections.shuffle(deck);
+        Collections.shuffle(deck); //randomise our selection
         for (int i=0; i<deck.size(); i++)
             if (deck.get(i) instanceof Room) {
                 solution.add(deck.get(i));
@@ -190,7 +252,7 @@ public class Game {
     /**
      * Here we attempt to move the player n amount of steps (according to the dice roll),
      * In the future we will implement this move function with more logic. We will attempt
-     * to move the player in a BFS fashion towards a room/door of the players choosing
+     * to move the player in a A* fashion towards a room/door of the players choosing
      * @param player
      * @param nmoves
      * @param room - this is the destination we want to get to
@@ -198,19 +260,21 @@ public class Game {
     public void movePlayer(Player player, int nmoves, Room room){
 
         /** notes:
-         * because we want to move in a bfs fashion towards a room, there will be no need
+         * because we want to move in a A* fashion towards a room, there will be no need
          * to record the direction in which we travel.
          * The user can specify a certain amount of steps they wish the player to move,
          * dependant on the dice roll.
          */
 
-        // compute BFS
+        // compute A*
 
         // current position of player
         Node start = new Node(null,player.getPos());
         Node end = new Node(null,room.getDoor().getPos());
+        start.setGoal(end);
+        end.setGoal(end);
 
-        Node path = BFS(start,end);
+        Node path = Astar(start,end);
         if (path == null) //break out and report an error
             throw new IllegalArgumentException("Path finder has failed");
         List<Position> pathToFollow = new ArrayList<>();
@@ -222,13 +286,9 @@ public class Game {
             player.move(board,pathToFollow.get(i));
             i--;
             nmoves--;
-            UI.sleep(500);
+            UI.sleep(100);
             draw();
         }
-        // first determine in which direction we want to travel
-        // we will move our player using a BFS
-
-        // second account for the process of when we are on a door
     }
 
     /**
@@ -243,28 +303,28 @@ public class Game {
     }
 
     /**
-     * Algorithm for BFS search which will return a node containing
+     * Algorithm for Astar search which will return a node containing
      * the shortest path to our destination. Should never return null.
      * @param start
      * @param end
      * @return
      */
-    public Node BFS(Node start, Node end){
-        Queue<Node> order = new ArrayDeque<>();
+    public Node Astar(Node start, Node end){
+        Queue<Node> order = new PriorityQueue<>();
         Set<Node> visited = new HashSet<>();
 
         order.add(start); // add our start node to the queue
 
         while (!order.isEmpty()){
-            // do BFS LOGIC
+            // do Astar LOGIC
             Node n = order.poll();
             visited.add(n);
             if (n.equals(end)) return n; // found our path
             else {
-                //addNeighbours(n,order,visited);
                 for (Position p: n.getPos().getNeighbours()){
                     Node neighbour = new Node(n,p);
-                    if (!visited.contains(neighbour) && isFree(p))
+                    neighbour.setGoal(end);
+                    if (!visited.contains(neighbour) && isRoom(p))
                         order.add(neighbour);
                 }
             }
@@ -273,56 +333,7 @@ public class Game {
                     // we should never get here but we will account for it
     }
 
-    /**
-     * Helper method for our BFS. It determines if the space in which we
-     * want to travel is free at the specified position
-     * @return
-     */
-    public boolean isFree(Position p){
-        if (board[p.x][p.y] instanceof Room)
-            return false;
-        return true;
-    }
 
-    /**
-     * Here we set up our player with their initial position on where they will be
-     * starting on the board, each player is assigned a character in which they will
-     * play throughout the game. This does not necessarily mean that they will have
-     * that character card in their deck.
-     *
-     * @param name
-     * @param token
-     */
-    public Player addPlayer(String name, Player.Token token){
-        switch (token){
-            case MissScarlett://1,17
-                Player p1 = new Player(name,token,1,17);
-                players.add(p1);
-                return p1;
-            case ProfessorPlum://6,25
-                Player p2 = new Player(name, token,6,25);
-                players.add(p2);
-                return p2;
-            case MrsWhite://25/19
-                Player p3 = new Player(name,token,24,20);
-                players.add(p3);
-                return p3;
-            case MrsPeacock:
-                Player p4 = new Player(name,token,24,6);
-                players.add(p4);
-                return p4;
-            case MrGreen:
-                Player p5 = new Player(name,token,17,1);
-                players.add(p5);
-                return p5;
-            case ColonelMustard:
-                Player p6 = new Player(name,token,8,1);
-                players.add(p6);
-                return p6;
-            default:
-                throw new IllegalArgumentException("Player selection was abnormally exited");
-        }
-    }
 
     /**
      * Return the specified card using a string
@@ -374,13 +385,4 @@ public class Game {
             System.out.println(c.toString());
     }
 
-    public static void main(String[] args) {
-        Game game = new Game();
-        Player p = game.addPlayer("jack", Player.Token.MissScarlett);
-        Player p1 = game.addPlayer("john", Player.Token.ProfessorPlum);
-        game.addPlayersToBoard();
-        game.draw();
-        game.movePlayer(p1,100,game.getRoom("Kitchen"));
-        game.movePlayer(p,100,game.getRoom("Kitchen"));
-    }
 }
