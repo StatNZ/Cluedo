@@ -1,5 +1,6 @@
 import ecs100.UI;
 
+import java.awt.*;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -23,10 +24,8 @@ public class Player implements Board{
         ColonelMustard
     }
 
-    // Our current position on the board
-    // thinking about replacing this with location
-    private int x;
-    private int y;
+    // the players position on the board
+    private Position pos;
 
     private Set<Card> inventory; //player can never get the same card twice
     private Token token; // the token a player will play during the game
@@ -37,17 +36,16 @@ public class Player implements Board{
     public Player(String name, Token token, int x, int y){
         this.name = name;
         this.token = token;
-        this.x = x;
-        this.y = y;
+        this.pos = new Position(x,y);
         inventory = new HashSet<>();
     }
 
     /********************
      *      GETTERS     *
      ********************/
-    public int getX(){ return this.x; }
-    public int getY(){ return this.y; }
+
     public Room getRoom(){ return this.room; }
+    public Position getPos(){ return this.pos; }
 
     /**
      * A player enters a room
@@ -69,9 +67,12 @@ public class Player implements Board{
      *
      * @param p the updated position
      */
-    public void move(Position p){
-        this.x = p.x;
-        this.y = p.y;
+    @Override
+    public void move(Board[][] board, Position p){
+        board[pos.x][pos.y] = null;
+        this.pos = p;
+        // update board
+        board[p.x][p.y] = this;
     }
 
     /**
@@ -97,15 +98,25 @@ public class Player implements Board{
 
     @Override
     public void setStartPosition(Board[][] board) {
-        int x = this.x;
-        int y = this.y;
-        board[x][y] = this;
+        board[pos.x][pos.y] = this;
     }
 
     @Override
     public void draw() {
-        if (this.token == Token.MissScarlett)
-            UI.drawString("S",x*ratio,y*ratio); //.etc
+        if (this.token == Token.MissScarlett){
+            UI.setColor(Color.RED.brighter());
+        }if (this.token == Token.ColonelMustard)
+            UI.setColor(Color.YELLOW.darker());
+        if (this.token == Token.MrGreen)
+            UI.setColor(Color.GREEN);
+        if (this.token == Token.MrsPeacock)
+            UI.setColor(Color.CYAN);
+        if (this.token == Token.MrsWhite)
+            UI.setColor(Color.GRAY);
+        if (this.token == Token.ProfessorPlum)
+            UI.setColor(Color.magenta);
+        UI.fillRect(pos.x * ratio, pos.y * ratio, ratio, ratio); //.etc
+        UI.setColor(Color.black);
     }
 
     public String toString(){

@@ -12,9 +12,7 @@ import ecs100.*;
  */
 public class Room extends Card implements Board{
 
-//   private final String name;
-    private final int x;
-    private final int y;
+    private Position position;
     private final int width;
     private final int height;
 
@@ -24,22 +22,21 @@ public class Room extends Card implements Board{
 
     public Room(String name, int x, int y, int width, int height) {
         super(name);
-        this.x = x;
-        this.y = y;
+        this.position = new Position(x,y);
         this.height = height;
         this.width = width;
     }
 
     public void setDoorLocation(int x, int y) {
-        door = new Door(x,y,this);
+        door = new Door(new Position(x,y),this);
     }
 
     public Door getDoor(){return this.door; }
 
     @Override
     public void setStartPosition(Board[][] board){
-        int x = this.x;
-        int y = this.y;
+        int x = position.x;
+        int y = position.y;
         int width = this.width;
         int height = this.height;
        for (int row=x; row<x+width; row++)
@@ -50,22 +47,36 @@ public class Room extends Card implements Board{
         door.setStartPosition(board);
     }
 
+    /**
+     * We don't ever want to use this method
+     *
+     * @param board
+     * @param pos
+     */
+    @Override
+    public void move(Board[][] board, Position pos) {
+
+    }
+
     @Override
     public void draw(){
-        UI.drawRect(x*ratio,y*ratio,width*ratio,height*ratio);
+        UI.drawRect(position.x*ratio,position.y*ratio,width*ratio,height*ratio);
         door.draw();
     }
 
+    @Override
     public boolean equals(Object o){
         if (o instanceof Room){
             Room r = (Room)o;
-            return this.name == r.name;
+            return this.name.equals(r.name) &&
+                    this.width == r.width &&
+                    this.height == r.height;
         }
         return false;
     }
 
     public int hashCode(){
-        return x+y+width+height;
+        return width+height;
     }
 
     public String toString(){

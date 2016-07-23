@@ -1,5 +1,8 @@
 
 
+import com.sun.xml.internal.bind.v2.TODO;
+import ecs100.UI;
+
 import java.util.*;
 
 /**
@@ -18,30 +21,26 @@ public class Game {
     private List<Card> deck = new ArrayList<>();
     private List<Player> players = new ArrayList<>();
 
-    private Set<Card> solution = new HashSet<>();
-
+    private Set<Card> solution = new HashSet<>(); // contains cards to win the game
     private List<Card> allCards = new ArrayList<>();
 
-    public Game() {
 
+    public Game() {
         createRooms();
         createCards();
         allCards = deck;
+        //draw();
+    }
 
-//        for (int i=0; i<25; i++){
-//            for (int j=0; j<25; j++){
-//                if (board[i][j] != null){
-//                    board[i][j].draw();
-//                }
-//            }
-//        }
-
-//        for (int i=0; i<25; i++)
-//            for (int j=0; j<25; j++){
-//                if (board[i][j] == null){
-//                    board[i][j] =
-//                }
-//            }
+    public void draw(){
+        UI.clearGraphics();
+        for (int i=0; i<26; i++){
+            for (int j=0; j<26; j++){
+                if (board[i][j] != null){
+                    board[i][j].draw();
+                }
+            }
+        }
     }
 
     /**
@@ -69,7 +68,7 @@ public class Game {
         study.setDoorLocation(19,20);
         dining.setDoorLocation(6,8);
         library.setDoorLocation(19,16);
-        billiard.setDoorLocation(20,8);
+        billiard.setDoorLocation(20,8);//20/8
 
         // Assign the location for each room to the board
         kitchen.setStartPosition(board);
@@ -92,6 +91,12 @@ public class Game {
         deck.add(dining);
         deck.add(library);
         deck.add(billiard);
+    }
+
+    public void addPlayersToBoard(){
+        for (Player p: players){
+            p.setStartPosition(board);
+        }
     }
 
     /**
@@ -131,6 +136,19 @@ public class Game {
     }
 
     /**
+     * Get the room by string name;
+     * @param roomName
+     * @return
+     */
+    public Room getRoom(String roomName){
+        for (Card c: allCards){
+            if (c.getName().equals(roomName) && c instanceof Room)
+                return (Room)c;
+        }
+        throw new IllegalArgumentException("Room name is incorrect");
+    }
+
+    /**
      * Get the room the player is currently in
      * @param player
      * @return
@@ -143,14 +161,30 @@ public class Game {
 
     /**
      * Define our solution cards which are randomly chosen and stored in a set.
+     * The solution contains 1 Character, 1 Weapon, and 1 Room
      */
     public void setSolution(){
-        int i=0;
-        while (i < 3){
-            Card c = randomCard();
-            solution.add(c);
-            deck.remove(c);
-        }
+        // probably not the most ideal way to do this
+        Collections.shuffle(deck);
+        for (int i=0; i<deck.size(); i++)
+            if (deck.get(i) instanceof Room) {
+                solution.add(deck.get(i));
+                deck.remove(i);
+                break;
+            }
+        for (int i=0; i<deck.size(); i++)
+            if (deck.get(i) instanceof Character) {
+                solution.add(deck.get(i));
+                deck.remove(i);
+                break;
+            }
+        for (int i=0; i<deck.size(); i++)
+            if (deck.get(i) instanceof Weapon) {
+                solution.add(deck.get(i));
+                deck.remove(i);
+                break;
+            }
+
     }
 
     /**
@@ -173,8 +207,8 @@ public class Game {
         // compute BFS
 
         // current position of player
-        Node start = new Node(player.getX(),player.getY(),null);
-        Node end = new Node(room.getDoor().x,room.getDoor().y,null);
+        Node start = new Node(null,player.getPos());
+        Node end = new Node(null,room.getDoor().getPos());
 
         Node path = BFS(start,end);
         if (path == null) //break out and report an error
@@ -184,18 +218,17 @@ public class Game {
 
         int i = pathToFollow.size()-1;
         while (nmoves != 0){
-            // traverse the list backwards in order to get the
-            // correct path
-            player.move(pathToFollow.get(i));
+            if (i < 0) break;
+            player.move(board,pathToFollow.get(i));
             i--;
             nmoves--;
+            UI.sleep(500);
+            draw();
         }
-
         // first determine in which direction we want to travel
         // we will move our player using a BFS
 
         // second account for the process of when we are on a door
-
     }
 
     /**
@@ -204,7 +237,7 @@ public class Game {
      */
     public void addPath(List<Position> positions, Node path){
         while (path.parent != null){
-            positions.add(new Position(path.x,path.y));
+            positions.add(new Position(path.getPos().x,path.getPos().y));
             path = path.parent;
         }
     }
@@ -220,54 +253,24 @@ public class Game {
         Queue<Node> order = new ArrayDeque<>();
         Set<Node> visited = new HashSet<>();
 
+        order.add(start); // add our start node to the queue
+
         while (!order.isEmpty()){
             // do BFS LOGIC
             Node n = order.poll();
             visited.add(n);
             if (n.equals(end)) return n; // found our path
-            else
-                addNeighbours(n,order,visited);
+            else {
+                //addNeighbours(n,order,visited);
+                for (Position p: n.getPos().getNeighbours()){
+                    Node neighbour = new Node(n,p);
+                    if (!visited.contains(neighbour) && isFree(p))
+                        order.add(neighbour);
+                }
+            }
         }
         return null; // we haven't found a path
                     // we should never get here but we will account for it
-    }
-
-    /**
-     * Here we add our neighbours for our BFS. Our neighbours are positions that
-     * we are allowed to travel.
-     *
-     * @param parent
-     * @param order
-     * @param visited
-     */
-    public void addNeighbours(Node parent, Queue<Node> order, Set<Node> visited){
-        int x = parent.x;
-        int y = parent.y;
-
-        // up position
-        if (isFree(x,y-1)){
-            Node n = new Node(x,y-1,parent);
-            if (!visited.contains(n))
-                order.add(n);
-        }
-        // down position
-        if (isFree(x,y+1)){
-            Node n = new Node(x,y+1,parent);
-            if (!visited.contains(n))
-                order.add(n);
-        }
-        // left position
-        if (isFree(x-1,y)){
-            Node n = new Node(x-1,y,parent);
-            if (!visited.contains(n))
-                order.add(n);
-        }
-        // right position
-        if (isFree(x+1,y)){
-            Node n = new Node(x+1,y,parent);
-            if (!visited.contains(n))
-                order.add(n);
-        }
     }
 
     /**
@@ -275,10 +278,8 @@ public class Game {
      * want to travel is free at the specified position
      * @return
      */
-    public boolean isFree(int x, int y){
-        if (x<0 || y<0 || x>25 || y>25)
-            return false;
-        if (board[x][y] instanceof Room)
+    public boolean isFree(Position p){
+        if (board[p.x][p.y] instanceof Room)
             return false;
         return true;
     }
@@ -292,39 +293,48 @@ public class Game {
      * @param name
      * @param token
      */
-    public void addPlayer(String name, Player.Token token){
+    public Player addPlayer(String name, Player.Token token){
         switch (token){
-            case MissScarlett:
-                players.add(new Player(name,token,0,17));
-                break;
-            case ProfessorPlum:
-                players.add(new Player(name,token,6,25));
-                break;
-            case MrsWhite:
-                players.add(new Player(name,token,25,19));
-                break;
+            case MissScarlett://1,17
+                Player p1 = new Player(name,token,1,17);
+                players.add(p1);
+                return p1;
+            case ProfessorPlum://6,25
+                Player p2 = new Player(name, token,6,25);
+                players.add(p2);
+                return p2;
+            case MrsWhite://25/19
+                Player p3 = new Player(name,token,24,20);
+                players.add(p3);
+                return p3;
             case MrsPeacock:
-                players.add(new Player(name,token,25,5));
-                break;
+                Player p4 = new Player(name,token,24,6);
+                players.add(p4);
+                return p4;
             case MrGreen:
-                players.add(new Player(name,token,17,0));
-                break;
+                Player p5 = new Player(name,token,17,1);
+                players.add(p5);
+                return p5;
             case ColonelMustard:
-                players.add(new Player(name,token,8,0));
-                break;
+                Player p6 = new Player(name,token,8,1);
+                players.add(p6);
+                return p6;
+            default:
+                throw new IllegalArgumentException("Player selection was abnormally exited");
         }
     }
 
     /**
-     * Return the specified card
+     * Return the specified card using a string
      * @param name
      * @return
      */
     public Card getCard(String name){
         for (Card c: allCards){
-            System.out.println(c.getName());
+            if (c.getName().equals(name))
+                return c;
         }
-        return null;
+        return null; // does not contain the card
     }
 
     /**
@@ -334,10 +344,13 @@ public class Game {
     public void dealCards(){
         while (!deck.isEmpty())
             for (Player p : players) {
-                if (deck.isEmpty()) break; // this ensures our random doesn't throw an illegaArg.
+                if (deck.isEmpty()) break; // this ensures our random doesn't throw an illegalArg.
                 Card c = randomCard();
                 p.addCardToInventory(c);
+                // removes a card from the deck, ensuring that we cannot select the same card again
                 deck.remove(c);
+
+                // Todo: remove this code, it is for debugging
                 System.out.println("Card removed = " + c.toString()+" belongs to "+p.toString());
             }
     }
@@ -351,6 +364,11 @@ public class Game {
         return deck.get(rnd);
     }
 
+    /**
+     * A method used for testing, Prints all the cards that are
+     * currently in the deck. However once the game has commenced, there
+     * should not be a card left in the deck
+     */
     public void printCards(){
         for (Card c: deck)
             System.out.println(c.toString());
@@ -358,7 +376,11 @@ public class Game {
 
     public static void main(String[] args) {
         Game game = new Game();
-        game.getCard("stuff");
-
+        Player p = game.addPlayer("jack", Player.Token.MissScarlett);
+        Player p1 = game.addPlayer("john", Player.Token.ProfessorPlum);
+        game.addPlayersToBoard();
+        game.draw();
+        game.movePlayer(p1,100,game.getRoom("Kitchen"));
+        game.movePlayer(p,100,game.getRoom("Kitchen"));
     }
 }

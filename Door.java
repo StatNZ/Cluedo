@@ -1,4 +1,5 @@
 import ecs100.UI;
+import javafx.geometry.Pos;
 
 /**
  * The Door class is used to enter a Room. A player will walk
@@ -8,27 +9,28 @@ import ecs100.UI;
  */
 public class Door implements Board{
 
-    // because they are final we can make them public
-    public final int x;
-    public final int y;
-
+    private Position position;
     private Room room;
 
-    public Door(int x, int y, Room room) {
-        this.x = x*ratio;
-        this.y = y*ratio;
+    public Door(Position pos, Room room) {
+        this.position = pos;
         this.room = room;
     }
 
+    public Position getPos(){ return this.position; }
+
     @Override
     public void setStartPosition(Board[][] board) {
-        int x = this.x/ratio;
-        int y = this.y/ratio;
-        board[x][y] = this;
+        board[position.x][position.y] = this;
+    }
+
+    @Override
+    public void move(Board[][] board, Position pos) {
+
     }
 
     @Override
     public void draw() {
-        UI.fillRect(x,y,ratio,ratio);
+        UI.fillRect(position.x*ratio,position.y*ratio,ratio,ratio);
     }
 }
