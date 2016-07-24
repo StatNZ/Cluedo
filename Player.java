@@ -46,6 +46,7 @@ public class Player implements Board{
 
     public Room getRoom(){ return this.room; }
     public Position getPos(){ return this.pos; }
+    public String getName(){ return this.name; }
 
     /**
      * A player enters a room
@@ -63,16 +64,15 @@ public class Player implements Board{
     }
 
     /**
-     * Move the player to a new position
-     *
-     * @param p the updated position
+     * List all cards currently in your hand in String format
+     * @return
      */
-    @Override
-    public void move(Board[][] board, Position p){
-        board[pos.x][pos.y] = null;
-        this.pos = p;
-        // update board
-        board[p.x][p.y] = this;
+    public String getHand(){
+        String hand = "";
+        for (Card c: inventory){
+            hand = hand + c.getName()+"\n";
+        }
+        return hand;
     }
 
     /**
@@ -94,6 +94,19 @@ public class Player implements Board{
             return true;
         else
             return false;
+    }
+
+    /**
+     * Move the player to a new position
+     *
+     * @param p the updated position
+     */
+    @Override
+    public void move(Board[][] board, Position p){
+        board[pos.x][pos.y] = null;
+        this.pos = p;
+        // update board
+        board[p.x][p.y] = this;
     }
 
     @Override

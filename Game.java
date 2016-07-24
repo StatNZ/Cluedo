@@ -15,19 +15,21 @@ import java.util.*;
  */
 public class Game {
 
-    private Board[][] board = new Board[26][26];
+    private Board[][] board = new Board[27][27];
 
     private List<Card> deck = new ArrayList<>();
     private List<Player> players = new ArrayList<>();
 
     private Set<Card> solution = new HashSet<>(); // contains cards to win the game
-    private List<Card> allCards = new ArrayList<>();
+    private List<Card> allCards;
 
 
     public Game() {
         createCards();
         createRooms();
+        allCards = new ArrayList<>(deck);
         setSolution();
+
     }
 
     public void draw(){
@@ -58,15 +60,15 @@ public class Game {
         Room billiard = new Room("Billiard Room", 21, 6, 5, 6);
 
         // Set the door locations for each room
-        kitchen.setDoorLocation(6,5);
-        ball.setDoorLocation(11,8);
-        conservatory.setDoorLocation(19,5);
-        lounge.setDoorLocation(5,18);
-        hall.setDoorLocation(12,16);
-        study.setDoorLocation(19,20);
-        dining.setDoorLocation(6,8);
-        library.setDoorLocation(19,16);
-        billiard.setDoorLocation(20,8);//20/8
+        kitchen.setDoorLocation(6,4);
+        ball.setDoorLocation(11,7);
+        conservatory.setDoorLocation(19,4);
+        lounge.setDoorLocation(5,19);
+        hall.setDoorLocation(12,17);
+        study.setDoorLocation(19,21);
+        dining.setDoorLocation(5,8);
+        library.setDoorLocation(20,16);
+        billiard.setDoorLocation(21,8);//20/8
 
         // Assign the location for each room to the board
         kitchen.setStartPosition(board);
@@ -151,7 +153,7 @@ public class Game {
                 players.add(p3);
                 return p3;
             case MrsPeacock:
-                Player p4 = new Player(name,token,24,6);
+                Player p4 = new Player(name,token,25,5);
                 players.add(p4);
                 return p4;
             case MrGreen:
@@ -168,12 +170,11 @@ public class Game {
     }
 
     /**
-     * Adds all our players to the board/game
+     * Adds a list of players to the board
      */
-    public void addPlayersToBoard(){
-        for (Player p: players){
+    public void addPlayersToBoard(List<Player> players){
+        for (Player p: players)
             p.setStartPosition(board);
-        }
     }
 
     /**
@@ -183,7 +184,7 @@ public class Game {
      */
     public Room getRoom(String roomName){
         for (Card c: allCards){
-            if (c.getName().equals(roomName) && c instanceof Room)
+            if (c.getName().toLowerCase().contains(roomName.toLowerCase()) && c instanceof Room)
                 return (Room)c;
         }
         throw new IllegalArgumentException("Room name is incorrect");
@@ -201,14 +202,39 @@ public class Game {
     }
 
     /**
-     * Checks if current position is a door
+     * Checks if a door is adjacent to our Position then return
+     * a door
      * @param pos
      * @return
      */
-    public boolean isDoor(Position pos){
-        if (board[pos.x][pos.y] instanceof Door)
-            return true;
-        return false;
+    public Door isDoor(Position pos){
+        // check north
+        if (board[pos.x][pos.y-1] instanceof Door)
+            return (Door)board[pos.x][pos.y-1];
+        // south
+        if (board[pos.x][pos.y+1] instanceof Door)
+            return (Door)board[pos.x][pos.y+1];
+        // east
+        if (board[pos.x+1][pos.y] instanceof Door)
+            return (Door)board[pos.x+1][pos.y];
+        // west
+        if (board[pos.x-1][pos.y] instanceof Door)
+            return (Door)board[pos.x-1][pos.y];
+        return null;
+    }
+
+    /**
+     * Retrieves the room by position of Door
+     *
+     * @param pos
+     * @return
+     */
+    public Room getRoomByDoor(Position pos){
+        if (board[pos.x][pos.y] instanceof Door) {
+            Door door = (Door) board[pos.x][pos.y];
+            return door.getRoom();
+        }
+        return null;
     }
 
     /**
@@ -281,13 +307,39 @@ public class Game {
         addPath(pathToFollow, path);
 
         int i = pathToFollow.size()-1;
-        while (nmoves != 0){
-            if (i < 0) break;
+        while (nmoves != 0){ // this logic needs to be complex
+
+            if (i < 0) break; //safe guard against out-of-bounds
+
+            // Check if there is a door in our surrounding position
+            // check if new position is a door
+            Door door = isDoor(pathToFollow.get(i));
+            if (door != null){
+                Room r = door.getRoom();
+                String inp = TextClient.inputString("Would you like to enter room "+r.getName()+": yes/no?");
+                if (inp.contains("y")){
+                    // put the player in the room and update position
+                    player.enterRoom(r);
+                    player.move(board,pathToFollow.get(i));
+                    draw();
+                    return;
+                }else{ // player said no, so if room we want to travel to
+                    // is equal to the room we are at, we end our turn
+                    if (room.equals(r)) {
+                        player.move(board, pathToFollow.get(i));
+                        draw();
+                        return;
+                    }//else carry on with the program
+                }
+            }
+
+            // move the player
             player.move(board,pathToFollow.get(i));
-            i--;
-            nmoves--;
+
             UI.sleep(100);
             draw();
+            i--;
+            nmoves--;
         }
     }
 
@@ -352,7 +404,7 @@ public class Game {
      * Each player is dealt a set of cards. Each card dealt to a player
      * will come from a shuffled deck
      */
-    public void dealCards(){
+    public void dealCards(List<Player> players){
         while (!deck.isEmpty())
             for (Player p : players) {
                 if (deck.isEmpty()) break; // this ensures our random doesn't throw an illegalArg.
@@ -362,7 +414,7 @@ public class Game {
                 deck.remove(c);
 
                 // Todo: remove this code, it is for debugging
-                System.out.println("Card removed = " + c.toString()+" belongs to "+p.toString());
+                //System.out.println("Card removed = " + c.toString()+" belongs to "+p.toString());
             }
     }
 
@@ -383,6 +435,10 @@ public class Game {
     public void printCards(){
         for (Card c: deck)
             System.out.println(c.toString());
+    }
+
+    public String toString(){
+        return String.format(board.toString());
     }
 
 }

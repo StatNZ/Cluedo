@@ -18,6 +18,7 @@ public class Door implements Board{
     }
 
     public Position getPos(){ return this.position; }
+    public Room getRoom(){ return this.room; }
 
     @Override
     public void setStartPosition(Board[][] board) {

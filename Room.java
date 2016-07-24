@@ -20,6 +20,9 @@ public class Room extends Card implements Board{
     // but some rooms have multiple doors
     private Door door;
 
+    // some rooms have secret passages
+    private Room secretPassage;
+
     public Room(String name, int x, int y, int width, int height) {
         super(name);
         this.position = new Position(x,y);
@@ -32,6 +35,14 @@ public class Room extends Card implements Board{
     }
 
     public Door getDoor(){return this.door; }
+
+    public boolean hasSecretPassage(){
+        return secretPassage != null;
+    }
+
+    public Room getSecretPassage(){
+        return this.secretPassage;
+    }
 
     @Override
     public void setStartPosition(Board[][] board){
