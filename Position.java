@@ -37,16 +37,6 @@ public class Position {
         if (left.isFree()) children.add(left);
         if (right.isFree()) children.add(right);
 
-//        // can not move diagonal
-//        Position northW = new Position(x-1,y-1);
-//        Position northE = new Position(x+1,y-1);
-//        Position southW = new Position(x-1,y+1);
-//        Position southE = new Position(x+1,y+1);
-//        // cannot move diagonal
-//        if (northW.isFree()) children.add(northW);
-//        if (northE.isFree()) children.add(northE);
-//        if (southE.isFree()) children.add(southE);
-//        if (southW.isFree()) children.add(southW);
         return children;
     }
 

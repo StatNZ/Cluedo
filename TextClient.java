@@ -18,6 +18,8 @@ public class TextClient {
     private static List<Player> players;
     private static List<Player> excludedPlayers;
 
+    private static int displayCount = 0;
+
     /**
      * Get integer from System.in
      *
@@ -30,9 +32,14 @@ public class TextClient {
                     System.in));
             try {
                 String v = input.readLine();
+                int num = Integer.parseInt(v);
+                if (num < 2 || num > 6){
+                    System.out.println("Incorrect number of players entered");
+                    throw new IOException();
+                }
                 return Integer.parseInt(v);
             } catch (IOException e) {
-                System.out.println("Please enter a number!");
+                System.out.println("Please enter number!");
             }
         }
     }
@@ -54,8 +61,6 @@ public class TextClient {
             }
         }
     }
-
-
 
     /**
      * Create set number of players
@@ -103,6 +108,17 @@ public class TextClient {
     }
 
     /**
+     * A detailed list of the players options
+     */
+    private static void displayPlayersOptions(){
+        System.out.println("Player options");
+        System.out.println("move: Move player on the board toward a room");
+        System.out.println("accuse: Accuse a player of the murder:");
+        System.out.println("list: Show cards collected so far");
+        System.out.println("options: Shows these options again");
+    }
+
+    /**
      * A list of all the players options
      *
      * @param player
@@ -125,14 +141,8 @@ public class TextClient {
             }
         }
 
-        // list player options
-        System.out.println("Player options");
-        System.out.println("move: Move player on the board to a room");
-        System.out.println("accuse: Accuse a player of the murder:");
-        System.out.println("list: Show cards collected so far");
-
         // ask player to make their choice
-        String option = inputString("[move/accuse/list]");
+        String option = inputString("[move/accuse/list/options]");
         switch (option.toLowerCase()) {
             // move [player can only move less or equal to the dice roll]
             // player must choose a room they wish to move close towards
@@ -159,9 +169,15 @@ public class TextClient {
                 playerOptions(player,nmove,game); // loop back until the player chooses a valid option
                 return;
 
+            // display a detailed list of players options
+            case "options":
+                displayPlayersOptions();
+                playerOptions(player,nmove,game);
+                return;
+
             // let the player retry any number of times!
             default:
-                System.out.println("Incorrect option entered");
+                System.out.println("Incorrect command entered");
                 playerOptions(player,nmove,game); // loop again
         }
     }
@@ -177,7 +193,7 @@ public class TextClient {
             try {
                 String inputRoom = inputString("Choose a room to move towards");
                 // Todo: Player has the option to choose a number of steps less then or equal to dice roll
-                //int inputSteps = inputNumber("You can choose x amount of steps less than your dice count");
+                //int inputSteps = inputNumber("You can choose x amount of steps less than your dice amount");
                 Room room = game.getRoom(inputRoom);
                 game.movePlayer(player, nmove, room);
                 if (player.getRoom() != null)
@@ -199,8 +215,8 @@ public class TextClient {
         // player asks question
         System.out.println("********************");
         System.out.println("Make a suggestion/accusation");
-        String person = inputString("Choose character");
-        String tool = inputString("Choose weapon");
+        String person = inputString("Was it character?");
+        String tool = inputString("With the weapon");
         try {
             Card room = player.getRoom();
             Card character = game.getCard(person);
@@ -210,11 +226,12 @@ public class TextClient {
 
             if (accusing){
                 try{
-                    String accuseRoom = inputString("Choose room");
+                    String accuseRoom = inputString("In the room");
                     Room r = game.getRoom(accuseRoom);
                     accuseOptions(player,game,character,weapon,r);
                     return;
                 }catch (IllegalArgumentException e){
+                    System.out.println(e.getMessage());
                     suggestOptions(player,game,true);
                 }
                 return;
@@ -224,15 +241,17 @@ public class TextClient {
             guess.add(character);
             guess.add(weapon);
 
-            System.out.println("**********************");
+            System.out.println();
             System.out.println("Player "+player.getName()+" who is "+player.getToken().name()+" asks...");
             System.out.printf("Was it %1s with the %1s in the %1s\n\n",character,weapon,room);
 
             // now we check each player beginning to the left has a card
             int start = players.indexOf(player);
+            // check left direction of player
             if (revealCard(guess,player,start+1,players.size()))
                 return;
-            else if (revealCard(guess,player,0,start-1)){
+            // now check the other left of the player
+            else if (revealCard(guess,player,0,start)){
                 return;
             }
             System.out.println("No player revealed a card, put on your poker face :)");
@@ -253,7 +272,7 @@ public class TextClient {
     private static boolean revealCard(ArrayList<Card> guess,Player player, int start, int end){
         for (int i=start; i<end; i++){
             Player leftPlayer = players.get(i);
-            if (leftPlayer.checkCards(guess)){
+            if (leftPlayer.checkCards(guess) && leftPlayer != player){
                 // force leftPlayer to reveal a card to current player
                 // then add it to the inventory then break method
                 Card reveal = leftPlayer.pickRandomCardToReveal(guess);
@@ -296,6 +315,23 @@ public class TextClient {
     }
 
     /**
+     * Use command to clear the screen
+     */
+    public final static void clearConsole()
+    {
+        try
+        {
+            final String os = System.getProperty("os.name");
+            if (os.contains("Windows"))
+                Runtime.getRuntime().exec("cls");
+            else
+                Runtime.getRuntime().exec("clear");
+        }catch (final Exception e) {
+            System.out.println("Clear Screen failed");
+        }
+    }
+
+    /**
      * Access point to the game
      * @param args
      */
@@ -317,7 +353,7 @@ public class TextClient {
         System.out.println("By Jack O'Brien");
 
         //players
-        int nplayers = inputNumber("How many players?");
+        int nplayers = inputNumber("How many players? [2-6]");
         players = inputPlayers(nplayers,game);
         excludedPlayers = new ArrayList<>();
 
@@ -344,10 +380,12 @@ public class TextClient {
                    int roll = dice.nextInt(10) + 2;
                    System.out.println(player.getName() + " rolls a " + roll + ".");
                    playerOptions(player, roll, game);
+                   clearConsole();
                    turn++;
                }else //player has been disqualified
                     // check to see if we can still play the game
-                    if (excludedPlayers.size() == players.size()){
+                    if (excludedPlayers.size() == players.size() ||
+                            excludedPlayers.size() == players.size()-1){// second argument says we can't play with only 1 player
                         System.out.println("There is no winner");
                         System.out.println("The solution is:\n"+game.printSolution());
                         System.out.println("Game Over");

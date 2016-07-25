@@ -1,5 +1,3 @@
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * The Board is a 25x25 playing field which has 9 rooms in certain

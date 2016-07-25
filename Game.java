@@ -1,7 +1,6 @@
 
 
-import ecs100.UI;
-
+import ecs100.*;
 import java.util.*;
 
 /**
@@ -21,7 +20,7 @@ public class Game {
     private List<Player> players = new ArrayList<>();
 
     private List<Card> solution = new ArrayList<>(); // contains cards to win the game
-    private List<Card> allCards;
+    private List<Card> allCards; // a collection of all the cards
 
 
     public Game() {
@@ -34,8 +33,8 @@ public class Game {
 
     public void draw(){
         UI.clearGraphics();
-        for (int i=0; i<26; i++){
-            for (int j=0; j<26; j++){
+        for (int i=0; i<board.length; i++){
+            for (int j=0; j<board[0].length; j++){
                 if (board[i][j] != null){
                     board[i][j].draw();
                 }
@@ -213,20 +212,6 @@ public class Game {
     }
 
     /**
-     * Retrieves the room by position of Door
-     *
-     * @param pos
-     * @return
-     */
-    public Room getRoomByDoor(Position pos){
-        if (board[pos.x][pos.y] instanceof Door) {
-            Door door = (Door) board[pos.x][pos.y];
-            return door.getRoom();
-        }
-        return null;
-    }
-
-    /**
      * Checks if current position is a Room
      * @return
      */
@@ -273,30 +258,19 @@ public class Game {
      * @param room - this is the destination we want to get to
      */
     public void movePlayer(Player player, int nmoves, Room room){
-
-        /** notes:
-         * because we want to move in a A* fashion towards a room, there will be no need
-         * to record the direction in which we travel.
-         * The user can specify a certain amount of steps they wish the player to move,
-         * dependant on the dice roll.
-         */
-
-        // compute A*
-
         // current position of player
         Node start = new Node(null,player.getPos());
         Node end = new Node(null,room.getDoor().getPos());
         start.setGoal(end);
         end.setGoal(end);
 
+        // compute A*
         Node path = Astar(start,end);
-        if (path == null) //break out and report an error
-            throw new IllegalArgumentException("Path finder has failed");
         List<Position> pathToFollow = new ArrayList<>();
         addPath(pathToFollow, path);
 
         int i = pathToFollow.size()-1;
-        while (nmoves != 0){ // this logic needs to be complex
+        while (nmoves != 0){
 
             if (i < 0) break; //safe guard against out-of-bounds
 
@@ -305,6 +279,7 @@ public class Game {
             Door door = isDoor(pathToFollow.get(i));
             if (door != null){
                 Room r = door.getRoom();
+                // give client the option to enter room
                 String inp = TextClient.inputString("Would you like to enter room "+r.getName()+": yes/no?");
                 if (inp.contains("y")){
                     // put the player in the room and update position
@@ -312,7 +287,8 @@ public class Game {
                     player.move(board,pathToFollow.get(i));
                     draw();
                     return;
-                }else{ // player said no, so if room we want to travel to
+                }else{
+                    // player said no, so if room we want to travel to
                     // is equal to the room we are at, we end our turn
                     if (room.equals(r)) {
                         player.move(board, pathToFollow.get(i));
@@ -325,6 +301,7 @@ public class Game {
             // move the player
             player.move(board,pathToFollow.get(i));
 
+            // Todo: UI AND DRAW ARE DEBUGGING MATERIAL
             UI.sleep(100);
             draw();
             i--;
@@ -370,8 +347,7 @@ public class Game {
                 }
             }
         }
-        return null; // we haven't found a path
-                    // we should never get here but we will account for it
+        throw new IllegalArgumentException("Path finder has failed");
     }
 
 
@@ -401,9 +377,6 @@ public class Game {
                 p.addCardToStart(c);
                 // removes a card from the deck, ensuring that we cannot select the same card again
                 deck.remove(c);
-
-                // Todo: remove this code, it is for debugging
-                //System.out.println("Card removed = " + c.toString()+" belongs to "+p.toString());
             }
     }
 
@@ -421,16 +394,6 @@ public class Game {
      */
     public List<Card> getSolution(){
         return this.solution;
-    }
-
-    /**
-     * A method used for testing, Prints all the cards that are
-     * currently in the deck. However once the game has commenced, there
-     * should not be a card left in the deck
-     */
-    public void printCards(){
-        for (Card c: deck)
-            System.out.println(c.toString());
     }
 
     public String printSolution(){

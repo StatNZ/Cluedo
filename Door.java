@@ -1,4 +1,4 @@
-import ecs100.UI;
+import ecs100.*;
 import javafx.geometry.Pos;
 
 /**

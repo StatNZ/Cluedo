@@ -1,5 +1,5 @@
-import com.sun.istack.internal.NotNull;
-import ecs100.UI;
+
+import ecs100.*;
 
 import java.awt.*;
 import java.util.*;
@@ -71,11 +71,19 @@ public class Player implements Board{
      * @return
      */
     public String printInventory(){
-        String hand = "";
-        for (Card c: inventory){
-            hand = hand + c.getName()+"\n";
+        String characters = "";
+        String weapons = "";
+        String rooms = "";
+        for (Card c: this.inventory){
+            if (c instanceof Character)
+                characters += c.toString()+"\n";
+            else if (c instanceof Weapon)
+                weapons += c.toString()+"\n";
+            else if (c instanceof Room)
+                rooms += c.toString()+"\n";
         }
-        return hand;
+
+        return String.format("\nCharacters:\n%1s\nWeapons:\n%1s\nRooms:\n%1s",characters,weapons,rooms);
     }
 
     /**
@@ -114,9 +122,9 @@ public class Player implements Board{
      * @return
      */
     public Card pickRandomCardToReveal(List<Card> guess){
-        for (Card pC: this.hand){
-            if (guess.contains(pC))
-                return pC;
+        for (Card c: this.hand){
+            if (guess.contains(c))
+                return c;
         }
         throw new IllegalArgumentException("Revealing card has returned null. Bad behaviour");
     }
