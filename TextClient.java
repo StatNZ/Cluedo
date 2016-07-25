@@ -1,3 +1,4 @@
+import javax.print.attribute.standard.PrinterLocation;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -15,6 +16,7 @@ import java.util.Random;
 public class TextClient {
 
     private static List<Player> players;
+    private static List<Player> excludedPlayers;
 
     /**
      * Get integer from System.in
@@ -118,7 +120,7 @@ public class TextClient {
                         "Would you like to go there now? (y/n)");
                 if (input.toLowerCase().contains("y")){
                     player.enterRoom(room.getSecretPassage());
-                    suggestOptions(player,game);
+                    suggestOptions(player,game,false);
                 }// else no, so list players options
             }
         }
@@ -144,21 +146,20 @@ public class TextClient {
             case "accuse":
                 //debug
                 System.out.println("Player "+player.getName()+" accuses");
-                // the problem with accuse is that you will be eliminated from the
-                // game if you are unsuccessful
+                suggestOptions(player,game,true);
                 return;
 
             // list all the cards that have been collected aswell as your own since
             // the beginning of the game
             case "list":
-                System.out.println("*********************************");
                 System.out.println("\nListing cards in your inventory");
-                System.out.println(player.getHand());
+                System.out.println("*********************************");
+                System.out.println(player.printInventory());
                 System.out.println("*********************************");
                 playerOptions(player,nmove,game); // loop back until the player chooses a valid option
                 return;
 
-
+            // let the player retry any number of times!
             default:
                 System.out.println("Incorrect option entered");
                 playerOptions(player,nmove,game); // loop again
@@ -180,7 +181,7 @@ public class TextClient {
                 Room room = game.getRoom(inputRoom);
                 game.movePlayer(player, nmove, room);
                 if (player.getRoom() != null)
-                    suggestOptions(player,game);
+                    suggestOptions(player,game,false);
                 return;
             }catch (IllegalArgumentException e){
                 System.out.println(e.getMessage());
@@ -194,18 +195,103 @@ public class TextClient {
      * @param player
      * @param game
      */
-    public static void suggestOptions(Player player, Game game){
+    public static void suggestOptions(Player player, Game game, boolean accusing){
         // player asks question
         System.out.println("********************");
-        System.out.println("Make a suggestion");
+        System.out.println("Make a suggestion/accusation");
         String person = inputString("Choose character");
-        String weapon = inputString("Choose weapon");
-        Room room = player.getRoom();
+        String tool = inputString("Choose weapon");
+        try {
+            Card room = player.getRoom();
+            Card character = game.getCard(person);
+            Card weapon = game.getCard(tool);
+            ArrayList<Card> guess = new ArrayList<>();
 
-        // now each player has to reveal a card if they have it
+
+            if (accusing){
+                try{
+                    String accuseRoom = inputString("Choose room");
+                    Room r = game.getRoom(accuseRoom);
+                    accuseOptions(player,game,character,weapon,r);
+                    return;
+                }catch (IllegalArgumentException e){
+                    suggestOptions(player,game,true);
+                }
+                return;
+            }
+
+            guess.add(room);
+            guess.add(character);
+            guess.add(weapon);
+
+            System.out.println("**********************");
+            System.out.println("Player "+player.getName()+" who is "+player.getToken().name()+" asks...");
+            System.out.printf("Was it %1s with the %1s in the %1s\n\n",character,weapon,room);
+
+            // now we check each player beginning to the left has a card
+            int start = players.indexOf(player);
+            if (revealCard(guess,player,start+1,players.size()))
+                return;
+            else if (revealCard(guess,player,0,start-1)){
+                return;
+            }
+            System.out.println("No player revealed a card, put on your poker face :)");
+
+        }catch (IllegalArgumentException e){
+            System.out.println(e.getMessage());
+            suggestOptions(player,game,false); //repeat until the player spells it right!!
+        }
     }
 
-    private static void accuseOptions(Player player, Game game){
+    /**
+     * Asks every player from start to end to reveal a card if they have it
+     * @param guess
+     * @param start
+     * @param end
+     * @return
+     */
+    private static boolean revealCard(ArrayList<Card> guess,Player player, int start, int end){
+        for (int i=start; i<end; i++){
+            Player leftPlayer = players.get(i);
+            if (leftPlayer.checkCards(guess)){
+                // force leftPlayer to reveal a card to current player
+                // then add it to the inventory then break method
+                Card reveal = leftPlayer.pickRandomCardToReveal(guess);
+                player.addCardToInventory(reveal);
+                System.out.println(leftPlayer.getName()+" revealed a card to "+player.getName());
+
+                // decide whether to give the other player the option of revealing a certain card
+                // or not
+                return true; //finished
+            }else
+                System.out.println(leftPlayer.getName()+" cannot answer");
+        }
+        return false; // no player in this list has any of the guess cards
+    }
+
+    /**
+     * The logic for accusing another player. This is where you win the game or loose
+     * @param player
+     * @param game
+     */
+    private static void accuseOptions(Player player, Game game,Card character, Card weapon, Card room){
+        // A player can accuse anywhere on the board
+        // This is how a player can win the game
+        if (game.getSolution().contains(character) &&
+                game.getSolution().contains(weapon) &&
+                game.getSolution().contains(room)){
+            // the player has won the game
+            System.out.println("\n***************************");
+            System.out.println("CONGRATULATIONS YOU WON "+ player.getName()+"!!!");
+            System.out.println("*****************************\n");
+            System.out.println("Winning solution:");
+            System.out.printf("It was %1s, with the %1s, in the %1s\n",character.getName(),weapon.getName(),room.getName());
+            System.out.println("Game Over");
+            System.exit(0);// exit the program
+        }else { // the guess was incorrect therefor the player is excluded
+            System.out.println("Your accusation was incorrect. You have been eliminated");
+            excludedPlayers.add(player);
+        }
 
     }
 
@@ -233,6 +319,7 @@ public class TextClient {
         //players
         int nplayers = inputNumber("How many players?");
         players = inputPlayers(nplayers,game);
+        excludedPlayers = new ArrayList<>();
 
         // add players to the board
         game.addPlayersToBoard(players);
@@ -248,14 +335,24 @@ public class TextClient {
             System.out.println("********************\n");
             boolean firstTime = true;
             for (Player player : players) {
-                if (!firstTime) {
-                    System.out.println("\n********************\n");
-                }
-                firstTime = false;
-                int roll = dice.nextInt(10) + 2;
-                System.out.println(player.getName() + " rolls a " + roll + ".");
-                playerOptions(player,roll,game);
-                game.toString();
+                // check if player is disqualified from the game
+               if (!excludedPlayers.contains(player)) {
+                   if (!firstTime) {
+                       System.out.println("\n********************\n");
+                   }
+                   firstTime = false;
+                   int roll = dice.nextInt(10) + 2;
+                   System.out.println(player.getName() + " rolls a " + roll + ".");
+                   playerOptions(player, roll, game);
+                   turn++;
+               }else //player has been disqualified
+                    // check to see if we can still play the game
+                    if (excludedPlayers.size() == players.size()){
+                        System.out.println("There is no winner");
+                        System.out.println("The solution is:\n"+game.printSolution());
+                        System.out.println("Game Over");
+                        return;
+                    }
             }
 
         }

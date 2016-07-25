@@ -1,8 +1,9 @@
+import com.sun.istack.internal.NotNull;
 import ecs100.UI;
 
 import java.awt.*;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
+import java.util.List;
 
 /**
  * Each player is a character in the game of cluedo. A player will
@@ -16,18 +17,19 @@ public class Player implements Board{
 
     // Could possibly do enums for Tokens
     public enum Token{
-        MissScarlett,
-        ProfessorPlum,
-        MrGreen,
-        MrsWhite,
-        MrsPeacock,
-        ColonelMustard
+        Scarlett,
+        Plum,
+        Green,
+        White,
+        Peacock,
+        Mustard
     }
 
     // the players position on the board
     private Position pos;
 
-    private Set<Card> inventory; //player can never get the same card twice
+    private List<Card> hand; // our given cards at the beginning the ones we show to other players
+    private Set<Card> inventory; //all cards seen and owned by current player
     private Token token; // the token a player will play during the game
     private String name;
 
@@ -37,7 +39,7 @@ public class Player implements Board{
         this.name = name;
         this.token = token;
         this.pos = new Position(x,y);
-        inventory = new HashSet<>();
+        hand = new ArrayList<>();
     }
 
     /********************
@@ -47,6 +49,7 @@ public class Player implements Board{
     public Room getRoom(){ return this.room; }
     public Position getPos(){ return this.pos; }
     public String getName(){ return this.name; }
+    public Player.Token getToken(){ return this.token; }
 
     /**
      * A player enters a room
@@ -67,7 +70,7 @@ public class Player implements Board{
      * List all cards currently in your hand in String format
      * @return
      */
-    public String getHand(){
+    public String printInventory(){
         String hand = "";
         for (Card c: inventory){
             hand = hand + c.getName()+"\n";
@@ -76,24 +79,46 @@ public class Player implements Board{
     }
 
     /**
-     * A player is dealt deck in the beginning of the game. As the game
-     * progresses a player will add deck to their inventory
+     * These are the cards that we collect from other players during the game
      */
     public void addCardToInventory(Card card){
         inventory.add(card);
     }
 
     /**
-     * Check our inventory for the argument
-     *
+     * These are the cards that are dealt to us in the beginning of the game
      * @param card
+     */
+    public void addCardToStart(Card card){
+        hand.add(card);
+        // setup inventory
+        inventory = new HashSet<>(hand);
+    }
+
+    /**
+     * Check our inventory for at least one card within the given list
+     * @param guess = list of cards
      * @return
      */
-    public boolean checkCards(Card card){
-        if (inventory.contains(card))
-            return true;
-        else
-            return false;
+    public boolean checkCards(ArrayList<Card> guess){
+        for (Card c: guess){
+            if (hand.contains(c))
+                return true;
+        }
+        return false;
+    }
+
+    /**
+     * This method will return the first instance of a card in their hand that is
+     * the same as a card in the guess
+     * @return
+     */
+    public Card pickRandomCardToReveal(List<Card> guess){
+        for (Card pC: this.hand){
+            if (guess.contains(pC))
+                return pC;
+        }
+        throw new IllegalArgumentException("Revealing card has returned null. Bad behaviour");
     }
 
     /**
@@ -116,17 +141,17 @@ public class Player implements Board{
 
     @Override
     public void draw() {
-        if (this.token == Token.MissScarlett){
+        if (this.token == Token.Scarlett){
             UI.setColor(Color.RED.brighter());
-        }if (this.token == Token.ColonelMustard)
+        }if (this.token == Token.Mustard)
             UI.setColor(Color.YELLOW.darker());
-        if (this.token == Token.MrGreen)
+        if (this.token == Token.Green)
             UI.setColor(Color.GREEN);
-        if (this.token == Token.MrsPeacock)
+        if (this.token == Token.Peacock)
             UI.setColor(Color.CYAN);
-        if (this.token == Token.MrsWhite)
+        if (this.token == Token.White)
             UI.setColor(Color.GRAY);
-        if (this.token == Token.ProfessorPlum)
+        if (this.token == Token.Plum)
             UI.setColor(Color.magenta);
         UI.fillRect(pos.x * ratio, pos.y * ratio, ratio, ratio); //.etc
         UI.setColor(Color.black);

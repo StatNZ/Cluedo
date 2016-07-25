@@ -20,7 +20,7 @@ public class Game {
     private List<Card> deck = new ArrayList<>();
     private List<Player> players = new ArrayList<>();
 
-    private Set<Card> solution = new HashSet<>(); // contains cards to win the game
+    private List<Card> solution = new ArrayList<>(); // contains cards to win the game
     private List<Card> allCards;
 
 
@@ -140,27 +140,27 @@ public class Game {
      */
     public Player addPlayer(String name, Player.Token token){
         switch (token){
-            case MissScarlett://1,17
+            case Scarlett://1,17
                 Player p1 = new Player(name,token,1,17);
                 players.add(p1);
                 return p1;
-            case ProfessorPlum://6,25
+            case Plum://6,25
                 Player p2 = new Player(name, token,6,25);
                 players.add(p2);
                 return p2;
-            case MrsWhite://25/19
+            case White://25/19
                 Player p3 = new Player(name,token,25,19);
                 players.add(p3);
                 return p3;
-            case MrsPeacock:
+            case Peacock:
                 Player p4 = new Player(name,token,25,5);
                 players.add(p4);
                 return p4;
-            case MrGreen:
+            case Green:
                 Player p5 = new Player(name,token,17,1);
                 players.add(p5);
                 return p5;
-            case ColonelMustard:
+            case Mustard:
                 Player p6 = new Player(name,token,8,1);
                 players.add(p6);
                 return p6;
@@ -188,17 +188,6 @@ public class Game {
                 return (Room)c;
         }
         throw new IllegalArgumentException("Room name is incorrect");
-    }
-
-    /**
-     * Get the room the player is currently in
-     * @param player
-     * @return
-     */
-    public Room getRoom(Player player){
-        if (player.getRoom() != null)
-            return player.getRoom();
-        throw new IllegalArgumentException("Player is not in a room");
     }
 
     /**
@@ -394,10 +383,10 @@ public class Game {
      */
     public Card getCard(String name){
         for (Card c: allCards){
-            if (c.getName().equals(name))
+            if (c.getName().toLowerCase().contains(name.toLowerCase()))
                 return c;
         }
-        return null; // does not contain the card
+        throw new IllegalArgumentException("Cannot locate card "+name);
     }
 
     /**
@@ -409,7 +398,7 @@ public class Game {
             for (Player p : players) {
                 if (deck.isEmpty()) break; // this ensures our random doesn't throw an illegalArg.
                 Card c = randomCard();
-                p.addCardToInventory(c);
+                p.addCardToStart(c);
                 // removes a card from the deck, ensuring that we cannot select the same card again
                 deck.remove(c);
 
@@ -428,6 +417,13 @@ public class Game {
     }
 
     /**
+     * Return the solution list
+     */
+    public List<Card> getSolution(){
+        return this.solution;
+    }
+
+    /**
      * A method used for testing, Prints all the cards that are
      * currently in the deck. However once the game has commenced, there
      * should not be a card left in the deck
@@ -437,8 +433,16 @@ public class Game {
             System.out.println(c.toString());
     }
 
+    public String printSolution(){
+        String output = "";
+        for (Card c: solution){
+            output = output + c.getName()+"\n";
+        }
+        return output;
+    }
+
     public String toString(){
-        return String.format(board.toString());
+        return board.toString();
     }
 
 }

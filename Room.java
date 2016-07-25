@@ -1,5 +1,7 @@
 import ecs100.*;
 
+import java.util.Set;
+
 /**
  * A room is a location on the Board as well as a Card. A room
  * can be dealt to any player in the game. The solution will contain
@@ -20,6 +22,8 @@ public class Room extends Card implements Board{
     // but some rooms have multiple doors
     private Door door;
 
+    private Set<Door> doors;
+
     // some rooms have secret passages
     private Room secretPassage;
 
@@ -33,15 +37,28 @@ public class Room extends Card implements Board{
     public void setDoorLocation(int x, int y) {
         door = new Door(new Position(x,y),this);
     }
-
     public Door getDoor(){return this.door; }
 
     public boolean hasSecretPassage(){
         return secretPassage != null;
     }
-
     public Room getSecretPassage(){
         return this.secretPassage;
+    }
+
+    /**
+     * Return the closest door to the current position
+     */
+    public Door getDoor(Position p){
+        double closer = Double.MAX_VALUE;
+        Door door = null;
+        for (Door d: doors){
+            if (d.getPos().distance(p) < closer){
+                closer = d.getPos().distance(p);
+                door = d;
+            }
+        }
+        return door;
     }
 
     @Override
