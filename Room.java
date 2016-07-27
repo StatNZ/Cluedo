@@ -22,6 +22,7 @@ public class Room extends Card implements Board{
     // but some rooms have multiple doors
     private Door door;
 
+    // Setting multiple doors for a room
     private Set<Door> doors;
 
     // some rooms have secret passages
@@ -73,17 +74,6 @@ public class Room extends Card implements Board{
 
         // set door locations
         door.setStartPosition(board);
-    }
-
-    /**
-     * We don't ever want to use this method
-     *
-     * @param board
-     * @param pos
-     */
-    @Override
-    public void move(Board[][] board, Position pos) {
-
     }
 
     @Override

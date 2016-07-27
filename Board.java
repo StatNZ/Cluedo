@@ -24,13 +24,6 @@ public interface Board {
     public void setStartPosition(Board[][] board);
 
     /**
-     * Move a player on the board
-     * @param board
-     * @param pos
-     */
-    public void move(Board[][] board, Position pos);
-
-    /**
      * This allows us to draw our board to the canvas or text pane
      */
     public void draw();

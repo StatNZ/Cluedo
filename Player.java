@@ -26,7 +26,7 @@ public class Player implements Board{
     }
 
     // the players position on the board
-    private Position pos;
+    private Position position;
 
     private List<Card> hand; // our given cards at the beginning the ones we show to other players
     private Set<Card> inventory; //all cards seen and owned by current player
@@ -38,7 +38,7 @@ public class Player implements Board{
     public Player(String name, Token token, int x, int y){
         this.name = name;
         this.token = token;
-        this.pos = new Position(x,y);
+        this.position = new Position(x,y);
         hand = new ArrayList<>();
     }
 
@@ -47,7 +47,7 @@ public class Player implements Board{
      ********************/
 
     public Room getRoom(){ return this.room; }
-    public Position getPos(){ return this.pos; }
+    public Position getPosition(){ return this.position; }
     public String getName(){ return this.name; }
     public Player.Token getToken(){ return this.token; }
 
@@ -67,7 +67,8 @@ public class Player implements Board{
     }
 
     /**
-     * List all cards currently in your hand in String format
+     * List all cards currently in your hand in String format, Order the cards into
+     * their appropriate category
      * @return
      */
     public String printInventory(){
@@ -134,17 +135,16 @@ public class Player implements Board{
      *
      * @param p the updated position
      */
-    @Override
     public void move(Board[][] board, Position p){
-        board[pos.x][pos.y] = null;
-        this.pos = p;
+        board[position.x][position.y] = null;
+        this.position = p;
         // update board
         board[p.x][p.y] = this;
     }
 
     @Override
     public void setStartPosition(Board[][] board) {
-        board[pos.x][pos.y] = this;
+        board[position.x][position.y] = this;
     }
 
     @Override
@@ -161,11 +161,11 @@ public class Player implements Board{
             UI.setColor(Color.GRAY);
         if (this.token == Token.Plum)
             UI.setColor(Color.magenta);
-        UI.fillRect(pos.x * ratio, pos.y * ratio, ratio, ratio); //.etc
+        UI.fillRect(position.x * ratio, position.y * ratio, ratio, ratio); //.etc
         UI.setColor(Color.black);
     }
 
     public String toString(){
-        return name;
+        return String.format(this.name+" who is: "+this.token.toString());
     }
 }

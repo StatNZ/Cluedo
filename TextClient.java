@@ -314,22 +314,6 @@ public class TextClient {
 
     }
 
-    /**
-     * Use command to clear the screen
-     */
-    public final static void clearConsole()
-    {
-        try
-        {
-            final String os = System.getProperty("os.name");
-            if (os.contains("Windows"))
-                Runtime.getRuntime().exec("cls");
-            else
-                Runtime.getRuntime().exec("clear");
-        }catch (final Exception e) {
-            System.out.println("Clear Screen failed");
-        }
-    }
 
     /**
      * Access point to the game
@@ -380,7 +364,6 @@ public class TextClient {
                    int roll = dice.nextInt(10) + 2;
                    System.out.println(player.getName() + " rolls a " + roll + ".");
                    playerOptions(player, roll, game);
-                   clearConsole();
                    turn++;
                }else //player has been disqualified
                     // check to see if we can still play the game

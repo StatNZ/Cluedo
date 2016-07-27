@@ -26,11 +26,6 @@ public class Door implements Board{
     }
 
     @Override
-    public void move(Board[][] board, Position pos) {
-
-    }
-
-    @Override
     public void draw() {
         UI.fillRect(position.x*ratio,position.y*ratio,ratio,ratio);
     }

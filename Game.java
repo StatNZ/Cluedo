@@ -259,7 +259,7 @@ public class Game {
      */
     public void movePlayer(Player player, int nmoves, Room room){
         // current position of player
-        Node start = new Node(null,player.getPos());
+        Node start = new Node(null,player.getPosition());
         Node end = new Node(null,room.getDoor().getPos());
         start.setGoal(end);
         end.setGoal(end);
