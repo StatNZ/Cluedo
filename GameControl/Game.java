@@ -1,4 +1,4 @@
-
+package GameControl;
 
 import ecs100.*;
 import java.util.*;
@@ -16,19 +16,11 @@ public class Game {
 
     private Board[][] board = new Board[27][27];
 
-    private List<Card> deck = new ArrayList<>();
-    private List<Player> players = new ArrayList<>();
-
-    private List<Card> solution = new ArrayList<>(); // contains cards to win the game
-    private List<Card> allCards; // a collection of all the cards
-
+    // Card class containing our collections of cards
+    private Card card;
 
     public Game() {
-        createCards();
-        createRooms();
-        allCards = new ArrayList<>(deck);
-        setSolution();
-
+        this.card = new Card(board);
     }
 
     public void draw(){
@@ -40,92 +32,6 @@ public class Game {
                 }
             }
         }
-    }
-
-    /**
-     * Here we set up the locations of the rooms on the board, we also
-     * set the door locations. A room is a location on the board as well
-     * as a Card
-     */
-    public void createRooms(){
-        Room kitchen = new Room("Kitchen", 1, 1, 7, 4);
-        Room ball = new Room("Ball Room", 10, 1, 7, 7);
-        Room conservatory = new Room("Conservatory", 19, 1, 7, 4);
-        Room lounge = new Room("Lounge", 1, 19, 5, 7);
-        Room hall = new Room("Hall", 8, 17, 9, 9);
-        Room study = new Room("Study", 19, 21, 7, 5);
-        Room dining = new Room("Dining Room", 1, 7, 5, 9);
-        Room library = new Room("Library", 20, 14, 6, 5);
-        Room billiard = new Room("Billiard Room", 21, 6, 5, 6);
-
-        // Set the door locations for each room
-        kitchen.setDoorLocation(6,4);
-        ball.setDoorLocation(11,7);
-        conservatory.setDoorLocation(19,4);
-        lounge.setDoorLocation(5,19);
-        hall.setDoorLocation(12,17);
-        study.setDoorLocation(19,21);
-        dining.setDoorLocation(5,8);
-        library.setDoorLocation(20,16);
-        billiard.setDoorLocation(21,8);//20/8
-
-        // Assign the location for each room to the board
-        kitchen.setStartPosition(board);
-        ball.setStartPosition(board);
-        conservatory.setStartPosition(board);
-        lounge.setStartPosition(board);
-        hall.setStartPosition(board);
-        study.setStartPosition(board);
-        dining.setStartPosition(board);
-        library.setStartPosition(board);
-        billiard.setStartPosition(board);
-
-        // add the rooms to the deck (as they are cards as well
-        deck.add(kitchen);
-        deck.add(ball);
-        deck.add(conservatory);
-        deck.add(lounge);
-        deck.add(hall);
-        deck.add(study);
-        deck.add(dining);
-        deck.add(library);
-        deck.add(billiard);
-    }
-
-    /**
-     * Here we set up our characters and weapons for our deck of playing
-     * deck which our players will keep in their inventory
-     */
-    public void createCards(){
-        // characters
-        Character scarlett = new Character("Miss Scarlett");
-        Character mustard = new Character("Colonel Mustard");
-        Character green = new Character("Mr Green");
-        Character peacock = new Character("Mrs Peacock");
-        Character white = new Character("Mrs White");
-        Character plum = new Character("Professor Plum");
-
-        // weapons
-        Weapon rope = new Weapon("Rope");
-        Weapon dagger = new Weapon("Dagger");
-        Weapon candle = new Weapon("Candlestick");
-        Weapon pipe = new Weapon("Lead Pipe");
-        Weapon spanner = new Weapon("Spanner");
-        Weapon gun = new Weapon("Revolver");
-
-        // add the cards to the deck
-        deck.add(scarlett);
-        deck.add(mustard);
-        deck.add(green);
-        deck.add(peacock);
-        deck.add(white);
-        deck.add(plum);
-        deck.add(rope);
-        deck.add(dagger);
-        deck.add(candle);
-        deck.add(pipe);
-        deck.add(spanner);
-        deck.add(gun);
     }
 
     /**
@@ -141,52 +47,31 @@ public class Game {
         switch (token){
             case Scarlett://1,17
                 Player p1 = new Player(name,token,1,17);
-                players.add(p1);
+                p1.setStartPosition(board);
                 return p1;
             case Plum://6,25
                 Player p2 = new Player(name, token,6,25);
-                players.add(p2);
+                p2.setStartPosition(board);
                 return p2;
             case White://25/19
                 Player p3 = new Player(name,token,25,19);
-                players.add(p3);
+                p3.setStartPosition(board);
                 return p3;
             case Peacock:
                 Player p4 = new Player(name,token,25,5);
-                players.add(p4);
+                p4.setStartPosition(board);
                 return p4;
             case Green:
                 Player p5 = new Player(name,token,17,1);
-                players.add(p5);
+                p5.setStartPosition(board);
                 return p5;
             case Mustard:
                 Player p6 = new Player(name,token,8,1);
-                players.add(p6);
+                p6.setStartPosition(board);
                 return p6;
             default:
                 throw new IllegalArgumentException("Player selection was abnormally exited");
         }
-    }
-
-    /**
-     * Adds a list of players to the board
-     */
-    public void addPlayersToBoard(List<Player> players){
-        for (Player p: players)
-            p.setStartPosition(board);
-    }
-
-    /**
-     * Get the room by string name;
-     * @param roomName
-     * @return
-     */
-    public Room getRoom(String roomName){
-        for (Card c: allCards){
-            if (c.getName().toLowerCase().contains(roomName.toLowerCase()) && c instanceof Room)
-                return (Room)c;
-        }
-        throw new IllegalArgumentException("Room name is incorrect");
     }
 
     /**
@@ -212,6 +97,37 @@ public class Game {
     }
 
     /**
+     * Return the specified card using a string which will be the name of the card
+     * @return
+     */
+    public Card getCard(String name){
+        return card.getCard(name);
+    }
+
+    /**
+     * Return a character card that contains the string name
+     */
+    public Card getCharacter(String charName){
+        return card.getCharacter(charName);
+    }
+
+    /**
+     * Return a weapon card that contains the string name
+     * @return
+     */
+    public Card getWeapon(String weaponName){
+        return card.getWeapon(weaponName);
+    }
+
+    /**
+     * Get the room by string name;
+     * @return
+     */
+    public Room getRoom(String roomName){
+        return card.getRoom(roomName);
+    }
+
+    /**
      * Checks if current position is a Room
      * @return
      */
@@ -219,34 +135,6 @@ public class Game {
         if (board[p.x][p.y] instanceof Room)
             return false;
         return true;
-    }
-
-    /**
-     * Define our solution cards which are randomly chosen and stored in a set.
-     * The solution contains 1 Character, 1 Weapon, and 1 Room
-     */
-    public void setSolution(){
-        // probably not the most ideal way to do this
-        Collections.shuffle(deck); //randomise our selection
-        for (int i=0; i<deck.size(); i++)
-            if (deck.get(i) instanceof Room) {
-                solution.add(deck.get(i));
-                deck.remove(i);
-                break;
-            }
-        for (int i=0; i<deck.size(); i++)
-            if (deck.get(i) instanceof Character) {
-                solution.add(deck.get(i));
-                deck.remove(i);
-                break;
-            }
-        for (int i=0; i<deck.size(); i++)
-            if (deck.get(i) instanceof Weapon) {
-                solution.add(deck.get(i));
-                deck.remove(i);
-                break;
-            }
-
     }
 
     /**
@@ -350,58 +238,23 @@ public class Game {
         throw new IllegalArgumentException("Path finder has failed");
     }
 
-
-
-    /**
-     * Return the specified card using a string
-     * @param name
-     * @return
-     */
-    public Card getCard(String name){
-        for (Card c: allCards){
-            if (c.getName().toLowerCase().contains(name.toLowerCase()))
-                return c;
-        }
-        throw new IllegalArgumentException("Cannot locate card "+name);
-    }
-
     /**
      * Each player is dealt a set of cards. Each card dealt to a player
      * will come from a shuffled deck
      */
     public void dealCards(List<Player> players){
-        while (!deck.isEmpty())
-            for (Player p : players) {
-                if (deck.isEmpty()) break; // this ensures our random doesn't throw an illegalArg.
-                Card c = randomCard();
-                p.addCardToStart(c);
-                // removes a card from the deck, ensuring that we cannot select the same card again
-                deck.remove(c);
-            }
-    }
-
-    /**
-     * Helper method for getting a random card from the deck
-     * @return
-     */
-    public Card randomCard(){
-        int rnd = new Random().nextInt(deck.size());
-        return deck.get(rnd);
+        card.dealCards(players);
     }
 
     /**
      * Return the solution list
      */
-    public List<Card> getSolution(){
-        return this.solution;
+    public Set<Card> getSolution(){
+        return card.getSolution();
     }
 
     public String printSolution(){
-        String output = "";
-        for (Card c: solution){
-            output = output + c.getName()+"\n";
-        }
-        return output;
+        return card.printSolution();
     }
 
     public String toString(){

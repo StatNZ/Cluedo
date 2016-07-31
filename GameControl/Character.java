@@ -1,8 +1,10 @@
+package GameControl;
+
 /**
- * A Character is a card that is dealt to a player in the game.
+ * A GameControl.Character is a card that is dealt to a player in the game.
  * Each character has a name and a player is assigned a characters name.
  * No player can be the same character.
- * The solution will contain a Character.
+ * The solution will contain a GameControl.Character.
  *
  * A character is not specified at any location
  * <p>
@@ -15,6 +17,6 @@ public class Character extends Card {
     }
 
     public String toString(){
-        return name;
+        return this.getName();
     }
 }

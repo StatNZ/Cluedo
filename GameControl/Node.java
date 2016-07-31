@@ -1,5 +1,7 @@
+package GameControl;
+
 /**
- * Node is used for our Astar
+ * GameControl.Node is used for our Astar
  *
  * Created by Jack on 21/07/2016.
  */

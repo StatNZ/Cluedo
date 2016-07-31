@@ -1,3 +1,4 @@
+package GameControl;
 
 import ecs100.*;
 
@@ -40,6 +41,7 @@ public class Player implements Board{
         this.token = token;
         this.position = new Position(x,y);
         hand = new ArrayList<>();
+        inventory = new HashSet<>();
     }
 
     /********************
@@ -67,15 +69,34 @@ public class Player implements Board{
     }
 
     /**
-     * List all cards currently in your hand in String format, Order the cards into
+     * List all cards currently in your inventory (these are the cards which have been revealed
+     * to you throughout the game) in String format, Order the cards into
      * their appropriate category
      * @return
      */
-    public String printInventory(){
+    public String printDetectiveNotepad(){
+       return printPlayersSelectedCards(this.inventory,null);
+    }
+
+    /**
+     * List the cards currently in your hand
+     */
+    public String printHand(){
+        return printPlayersSelectedCards(this.hand,null);
+    }
+
+    /**
+     * List all the cards in your hand and detective notepad
+     */
+    public String printHandAndNotepad(){
+        return printPlayersSelectedCards(this.hand,this.inventory);
+    }
+
+    public String printPlayersSelectedCards(Collection<Card> first, Collection<Card> second){
         String characters = "";
         String weapons = "";
         String rooms = "";
-        for (Card c: this.inventory){
+        for (Card c: first){
             if (c instanceof Character)
                 characters += c.toString()+"\n";
             else if (c instanceof Weapon)
@@ -84,6 +105,16 @@ public class Player implements Board{
                 rooms += c.toString()+"\n";
         }
 
+        if (second != null){
+            for (Card c: second){
+                if (c instanceof Character)
+                    characters += c.toString()+"\n";
+                else if (c instanceof Weapon)
+                    weapons += c.toString()+"\n";
+                else if (c instanceof Room)
+                    rooms += c.toString()+"\n";
+            }
+        }
         return String.format("\nCharacters:\n%1s\nWeapons:\n%1s\nRooms:\n%1s",characters,weapons,rooms);
     }
 
@@ -98,10 +129,8 @@ public class Player implements Board{
      * These are the cards that are dealt to us in the beginning of the game
      * @param card
      */
-    public void addCardToStart(Card card){
+    public void addCardToHand(Card card){
         hand.add(card);
-        // setup inventory
-        inventory = new HashSet<>(hand);
     }
 
     /**

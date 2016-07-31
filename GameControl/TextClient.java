@@ -1,4 +1,5 @@
-import javax.print.attribute.standard.PrinterLocation;
+package GameControl;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -38,7 +39,7 @@ public class TextClient {
                     throw new IOException();
                 }
                 return Integer.parseInt(v);
-            } catch (IOException e) {
+            } catch (Exception e) {
                 System.out.println("Please enter number!");
             }
         }
@@ -113,8 +114,10 @@ public class TextClient {
     private static void displayPlayersOptions(){
         System.out.println("Player options");
         System.out.println("move: Move player on the board toward a room");
-        System.out.println("accuse: Accuse a player of the murder:");
-        System.out.println("list: Show cards collected so far");
+        System.out.println("accuse: Accuse a player of the murder...");
+        System.out.println("hand: Show cards dealt to you from the beginning");
+        System.out.println("notepad: Show the cards revealed by other players");
+        System.out.println("list: Show all cards collected so far");
         System.out.println("options: Shows these options again");
     }
 
@@ -142,13 +145,25 @@ public class TextClient {
         }
 
         // ask player to make their choice
-        String option = inputString("[move/accuse/list/options]");
+        String option = inputString("[move/accuse/hand/notepad/list/options]");
         switch (option.toLowerCase()) {
             // move [player can only move less or equal to the dice roll]
             // player must choose a room they wish to move close towards
             case "move":
                 player.leaveRoom();
                 moveOptions(player,nmove,game);
+                return;
+
+            // print the cards that are in your hand
+            case "hand":
+                printOptions(option,player.printHand());
+                playerOptions(player,nmove,game);
+                return;
+
+            // print the cards that have been revealed by other players
+            case "notepad":
+                printOptions(option,player.printDetectiveNotepad());
+                playerOptions(player,nmove,game);
                 return;
 
             // accuse [if you unsuccessfully accuse you are eliminated from the game]
@@ -162,10 +177,7 @@ public class TextClient {
             // list all the cards that have been collected aswell as your own since
             // the beginning of the game
             case "list":
-                System.out.println("\nListing cards in your inventory");
-                System.out.println("*********************************");
-                System.out.println(player.printInventory());
-                System.out.println("*********************************");
+                printOptions(option,player.printHandAndNotepad());
                 playerOptions(player,nmove,game); // loop back until the player chooses a valid option
                 return;
 
@@ -180,6 +192,13 @@ public class TextClient {
                 System.out.println("Incorrect command entered");
                 playerOptions(player,nmove,game); // loop again
         }
+    }
+
+    private static void printOptions(String type, String toPrint){
+        System.out.println("\nListing cards in your "+type);
+        System.out.println("*********************************");
+        System.out.println(toPrint);
+        System.out.println("*********************************");
     }
 
     /**
@@ -219,10 +238,9 @@ public class TextClient {
         String tool = inputString("With the weapon");
         try {
             Card room = player.getRoom();
-            Card character = game.getCard(person);
-            Card weapon = game.getCard(tool);
+            Card character = game.getCharacter(person);
+            Card weapon = game.getWeapon(tool);
             ArrayList<Card> guess = new ArrayList<>();
-
 
             if (accusing){
                 try{
@@ -303,15 +321,24 @@ public class TextClient {
             System.out.println("\n***************************");
             System.out.println("CONGRATULATIONS YOU WON "+ player.getName()+"!!!");
             System.out.println("*****************************\n");
-            System.out.println("Winning solution:");
-            System.out.printf("It was %1s, with the %1s, in the %1s\n",character.getName(),weapon.getName(),room.getName());
+            printSolution(game);
             System.out.println("Game Over");
             System.exit(0);// exit the program
         }else { // the guess was incorrect therefor the player is excluded
             System.out.println("Your accusation was incorrect. You have been eliminated");
             excludedPlayers.add(player);
+            if (players.size() - excludedPlayers.size() < 2){
+                System.out.println("There is only one player left in the game, therefore the game is over!");
+                printSolution(game);
+                System.exit(0);
+            }
         }
 
+    }
+
+    private static void printSolution(Game game){
+        System.out.println("The winning solution is:");
+        System.out.println(game.printSolution());
     }
 
 
@@ -341,8 +368,6 @@ public class TextClient {
         players = inputPlayers(nplayers,game);
         excludedPlayers = new ArrayList<>();
 
-        // add players to the board
-        game.addPlayersToBoard(players);
         // deal cards to all the players
         game.dealCards(players);
 
@@ -356,24 +381,16 @@ public class TextClient {
             boolean firstTime = true;
             for (Player player : players) {
                 // check if player is disqualified from the game
-               if (!excludedPlayers.contains(player)) {
-                   if (!firstTime) {
-                       System.out.println("\n********************\n");
-                   }
-                   firstTime = false;
-                   int roll = dice.nextInt(10) + 2;
-                   System.out.println(player.getName() + " rolls a " + roll + ".");
-                   playerOptions(player, roll, game);
-                   turn++;
-               }else //player has been disqualified
-                    // check to see if we can still play the game
-                    if (excludedPlayers.size() == players.size() ||
-                            excludedPlayers.size() == players.size()-1){// second argument says we can't play with only 1 player
-                        System.out.println("There is no winner");
-                        System.out.println("The solution is:\n"+game.printSolution());
-                        System.out.println("Game Over");
-                        return;
+                if (!excludedPlayers.contains(player)) {
+                    if (!firstTime) {
+                        System.out.println("\n********************\n");
                     }
+                    firstTime = false;
+                    int roll = dice.nextInt(10) + 2;
+                    System.out.println(player.getName() + " rolls a " + roll + ".");
+                    playerOptions(player, roll, game);
+                    turn++;
+                }
             }
 
         }

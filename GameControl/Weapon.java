@@ -1,6 +1,8 @@
+package GameControl;
+
 /**
- * A Weapon is a Card that is dealt to a player.
- * The solution will contain a Weapon.
+ * A GameControl.Weapon is a GameControl.Card that is dealt to a player.
+ * The solution will contain a GameControl.Weapon.
  * Each weapon has a name that a player can refer to.
  *
  * A weapon is not specified at any location and just referred to as
@@ -15,7 +17,7 @@ public class Weapon extends Card {
     }
 
     public String toString(){
-        return name;
+        return this.getName();
     }
 
 }

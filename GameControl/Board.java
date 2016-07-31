@@ -1,6 +1,7 @@
+package GameControl;
 
 /**
- * The Board is a 25x25 playing field which has 9 rooms in certain
+ * The GameControl.Board is a 25x25 playing field which has 9 rooms in certain
  * locations. Players and Rooms are dispersed upon the board in certain
  * positions and are able to freely move along the board.
  * <p>
@@ -17,7 +18,7 @@ public interface Board {
     public int ratio = 20;
 
     /**
-     * Here we set our initial locations for palyer(s) and rooms
+     * Here we set our initial locations for players and rooms
      * on the board
      * @param board
      */

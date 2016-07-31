@@ -1,9 +1,11 @@
+package GameControl;
+
 import ecs100.*;
 
 import java.util.Set;
 
 /**
- * A room is a location on the Board as well as a Card. A room
+ * A room is a location on the GameControl.Board as well as a GameControl.Card. A room
  * can be dealt to any player in the game. The solution will contain
  * a room.
  * Each room has a name that a player can refer to.
@@ -86,7 +88,7 @@ public class Room extends Card implements Board{
     public boolean equals(Object o){
         if (o instanceof Room){
             Room r = (Room)o;
-            return this.name.equals(r.name) &&
+            return this.getName().equals(r.getName()) &&
                     this.width == r.width &&
                     this.height == r.height;
         }
@@ -98,6 +100,6 @@ public class Room extends Card implements Board{
     }
 
     public String toString(){
-        return name;
+        return this.getName();
     }
 }

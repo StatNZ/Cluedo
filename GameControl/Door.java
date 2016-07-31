@@ -1,8 +1,9 @@
+package GameControl;
+
 import ecs100.*;
-import javafx.geometry.Pos;
 
 /**
- * The Door class is used to enter a Room. A player will walk
+ * The GameControl.Door class is used to enter a GameControl.Room. A player will walk
  * on top of a door and must choose to enter or pass by.
  * <p>
  * Created by Jack on 19/07/2016.
