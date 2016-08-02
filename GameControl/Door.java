@@ -13,9 +13,9 @@ public class Door implements Board{
     private Position position;
     private Room room;
 
-    public Door(Position pos, Room room) {
-        this.position = pos;
+    public Door(Room room, Position position) {
         this.room = room;
+        this.position = position;
     }
 
     public Position getPos(){ return this.position; }
@@ -29,5 +29,10 @@ public class Door implements Board{
     @Override
     public void draw() {
         UI.fillRect(position.x*ratio,position.y*ratio,ratio,ratio);
+    }
+
+    @Override
+    public char printArray() {
+        return '\37';
     }
 }

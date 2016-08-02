@@ -118,7 +118,9 @@ public class TextClient {
         System.out.println("hand: Show cards dealt to you from the beginning");
         System.out.println("notepad: Show the cards revealed by other players");
         System.out.println("list: Show all cards collected so far");
-        System.out.println("options: Shows these options again");
+        System.out.println("more: Shows these options again");
+        System.out.println("view: Print the board to the text pane");
+        System.out.println("end: End your current turn!");
     }
 
     /**
@@ -134,23 +136,27 @@ public class TextClient {
         if (room != null){
             // check if the room contains a secret passage and see if the player
             // would like to use it.
-            if (room.hasSecretPassage()){
+            if (room.hasSecretPassage(game)){
                 String input = inputString("This room leads to "+room.getSecretPassage().getName()+"\n" +
                         "Would you like to go there now? (y/n)");
                 if (input.toLowerCase().contains("y")){
                     player.enterRoom(room.getSecretPassage());
                     suggestOptions(player,game,false);
-                }// else no, so list players options
+                    return; // end the players turn
+                } // else no, so list players options
             }
         }
 
         // ask player to make their choice
-        String option = inputString("[move/accuse/hand/notepad/list/options]");
+        String option = inputString("[move/end/accuse/notepad/more]");
         switch (option.toLowerCase()) {
+            case "view":
+                System.out.println(game.printBoard(player));
+                playerOptions(player,nmove,game);
+                return;
             // move [player can only move less or equal to the dice roll]
             // player must choose a room they wish to move close towards
             case "move":
-                player.leaveRoom();
                 moveOptions(player,nmove,game);
                 return;
 
@@ -182,9 +188,13 @@ public class TextClient {
                 return;
 
             // display a detailed list of players options
-            case "options":
+            case "more":
                 displayPlayersOptions();
                 playerOptions(player,nmove,game);
+                return;
+
+            // end this players turn
+            case "end":
                 return;
 
             // let the player retry any number of times!
@@ -192,6 +202,10 @@ public class TextClient {
                 System.out.println("Incorrect command entered");
                 playerOptions(player,nmove,game); // loop again
         }
+    }
+
+    private static void secretPassage(){
+
     }
 
     private static void printOptions(String type, String toPrint){
@@ -214,6 +228,20 @@ public class TextClient {
                 // Todo: Player has the option to choose a number of steps less then or equal to dice roll
                 //int inputSteps = inputNumber("You can choose x amount of steps less than your dice amount");
                 Room room = game.getRoom(inputRoom);
+
+                // check if players chosen room is the same as the current room they are in
+                if (room.equals(player.getRoom())){
+                    // essentially the player wants to stay in the room which they cannot
+                    System.out.println("You are already in this room, choose another room or end your turn!");
+                    String input = inputString("[move/end]");
+                    if (input.contains("move")){
+                        moveOptions(player,nmove,game);
+                        return;
+                    }else // ending his turn
+                        return;
+
+                }
+                player.leaveRoom();
                 game.movePlayer(player, nmove, room);
                 if (player.getRoom() != null)
                     suggestOptions(player,game,false);

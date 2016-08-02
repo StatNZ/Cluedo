@@ -27,8 +27,8 @@ public class Card {
     // the name of our card
     private String name;
 
-    public Card(Board[][] board){
-        setupCards(board);
+    public Card(){
+        setupCards();
         setupSolution();
         deck.addAll(characters);
         deck.addAll(weapons);
@@ -50,50 +50,22 @@ public class Card {
      * Here we set up our characters and weapons for our deck of playing
      * deck which our players will keep in their inventory
      */
-    private void setupCards(Board[][] board){
-        // set up the rooms and their special cases
-        Room kitchen = new Room("Kitchen", 1, 1, 7, 4);
-        Room ball = new Room("Ball Room", 10, 1, 7, 7);
-        Room conservatory = new Room("Conservatory", 19, 1, 7, 4);
-        Room lounge = new Room("Lounge", 1, 19, 5, 7);
-        Room hall = new Room("Hall", 8, 17, 9, 9);
-        Room study = new Room("Study", 19, 21, 7, 5);
-        Room dining = new Room("Dining Room", 1, 7, 5, 9);
-        Room library = new Room("Library", 20, 14, 6, 5);
-        Room billiard = new Room("Billiard Room", 21, 6, 5, 6);
+    private void setupCards(){
 
-        // Set the door locations for each room
-        kitchen.setDoorLocation(6,4);
-        ball.setDoorLocation(11,7);
-        conservatory.setDoorLocation(19,4);
-        lounge.setDoorLocation(5,19);
-        hall.setDoorLocation(12,17);
-        study.setDoorLocation(19,21);
-        dining.setDoorLocation(5,8);
-        library.setDoorLocation(20,16);
-        billiard.setDoorLocation(21,8);//20/8
+        // create room cards
+        rooms.add(new Room("Kitchen"));
+        rooms.add(new Room("Lounge"));
+        rooms.add(new Room("Study"));
+        rooms.add(new Room("Conservatory"));
+        rooms.add(new Room("Billiard Room"));
+        rooms.add(new Room("Hall"));
+        rooms.add(new Room("Library"));
+        rooms.add(new Room("Ball Room"));
+        rooms.add(new Room("Dining Room"));
 
-        // Assign the location for each room to the board
-        kitchen.setStartPosition(board);
-        ball.setStartPosition(board);
-        conservatory.setStartPosition(board);
-        lounge.setStartPosition(board);
-        hall.setStartPosition(board);
-        study.setStartPosition(board);
-        dining.setStartPosition(board);
-        library.setStartPosition(board);
-        billiard.setStartPosition(board);
-
-        // add the rooms to the deck (as they are cards as well
-        rooms.add(kitchen);
-        rooms.add(ball);
-        rooms.add(conservatory);
-        rooms.add(lounge);
-        rooms.add(hall);
-        rooms.add(study);
-        rooms.add(dining);
-        rooms.add(library);
-        rooms.add(billiard);
+        // create mock room cards, these cards will never be used
+        rooms.add(new Room("BLOCKED"));
+        rooms.add(new Room("Solution"));
 
         // set up our character and weapon cards
         // characters
@@ -126,6 +98,7 @@ public class Card {
         weapons.add(pipe);
         weapons.add(spanner);
         weapons.add(gun);
+
     }
 
     /*********************************/

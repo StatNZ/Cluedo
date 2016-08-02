@@ -2,6 +2,7 @@ package GameControl;
 
 import ecs100.*;
 
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -17,36 +18,49 @@ import java.util.Set;
 public class Room extends Card implements Board{
 
     private Position position;
-    private final int width;
-    private final int height;
-
-    // We will only set one door for each room in the meantime
-    // but some rooms have multiple doors
-    private Door door;
+    private int width;
+    private int height;
 
     // Setting multiple doors for a room
-    private Set<Door> doors;
+    private Set<Door> doors = new HashSet<>();
 
     // some rooms have secret passages
     private Room secretPassage;
 
-    public Room(String name, int x, int y, int width, int height) {
+    public Room(String name) {
         super(name);
-        this.position = new Position(x,y);
-        this.height = height;
-        this.width = width;
     }
 
-    public void setDoorLocation(int x, int y) {
-        door = new Door(new Position(x,y),this);
-    }
-    public Door getDoor(){return this.door; }
-
-    public boolean hasSecretPassage(){
+    public boolean hasSecretPassage(Game game){
+        switch (getName()){
+            case "Kitchen":
+                secretPassage = game.getRoom("Study");
+                break;
+            case "Lounge":
+                secretPassage = game.getRoom("Conservatory");
+                break;
+            case "Study":
+                secretPassage = game.getRoom("Kitchen");
+                break;
+            case "Conservatory":
+                secretPassage = game.getRoom("Lounge");
+                break;
+        }
         return secretPassage != null;
     }
     public Room getSecretPassage(){
         return this.secretPassage;
+    }
+
+    /**
+     * Creates a door at the specified position and returns a new door object
+     * @param p
+     * @return
+     */
+    public Door addDoor(Position p){
+        Door d = new Door(this,p);
+        doors.add(d);
+        return d;
     }
 
     /**
@@ -75,13 +89,45 @@ public class Room extends Card implements Board{
                board[row][col] = this;
 
         // set door locations
-        door.setStartPosition(board);
+       for (Door d: this.doors){
+           d.setStartPosition(board);
+       }
     }
 
     @Override
     public void draw(){
         UI.drawRect(position.x*ratio,position.y*ratio,width*ratio,height*ratio);
-        door.draw();
+        for (Door d: this.doors){
+            d.draw();
+        }
+    }
+
+    @Override
+    public char printArray() {
+        switch (getName()) {
+            case "Kitchen":
+                return 'K';
+            case "Dining Room":
+                return 'D';
+            case "Hall":
+                return 'H';
+            case "Billiard Room":
+                return 'P';
+            case "Ball Room":
+                return 'B';
+            case "Lounge":
+                return 'O';
+            case "Library":
+                return 'L';
+            case "Study":
+                return 'S';
+            case "BLOCKED"://blocked toilet return poop
+            case "Solution":
+                return '#';
+            case "Conservatory":
+                return 'C';
+        }
+        return ' ';
     }
 
     @Override

@@ -29,4 +29,9 @@ public interface Board {
      */
     public void draw();
 
+    /**
+     * Prints the board to the std.out
+     */
+    public char printArray();
+
 }

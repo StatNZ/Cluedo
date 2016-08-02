@@ -14,7 +14,7 @@ import java.util.List;
  * <p>
  * Created by Jack on 19/07/2016.
  */
-public class Player implements Board{
+public class Player {
 
     // Could possibly do enums for Tokens
     public enum Token{
@@ -36,10 +36,10 @@ public class Player implements Board{
 
     private Room room; // the current room the player is in
 
-    public Player(String name, Token token, int x, int y){
+    public Player(String name, Token token, Position position){
         this.name = name;
         this.token = token;
-        this.position = new Position(x,y);
+        this.position = position;
         hand = new ArrayList<>();
         inventory = new HashSet<>();
     }
@@ -165,34 +165,35 @@ public class Player implements Board{
      * @param p the updated position
      */
     public void move(Board[][] board, Position p){
-        board[position.x][position.y] = null;
+//        board[position.x][position.y] = null;
+//        this.position = p;
+//        // update board
+//        board[p.x][p.y] = this;
         this.position = p;
-        // update board
-        board[p.x][p.y] = this;
     }
 
-    @Override
-    public void setStartPosition(Board[][] board) {
-        board[position.x][position.y] = this;
-    }
-
-    @Override
-    public void draw() {
-        if (this.token == Token.Scarlett){
-            UI.setColor(Color.RED.brighter());
-        }if (this.token == Token.Mustard)
-            UI.setColor(Color.YELLOW.darker());
-        if (this.token == Token.Green)
-            UI.setColor(Color.GREEN);
-        if (this.token == Token.Peacock)
-            UI.setColor(Color.CYAN);
-        if (this.token == Token.White)
-            UI.setColor(Color.GRAY);
-        if (this.token == Token.Plum)
-            UI.setColor(Color.magenta);
-        UI.fillRect(position.x * ratio, position.y * ratio, ratio, ratio); //.etc
-        UI.setColor(Color.black);
-    }
+//    @Override
+//    public void setStartPosition(Board[][] board) {
+//        board[position.x][position.y] = this;
+//    }
+//
+//    @Override
+//    public void draw() {
+//        if (this.token == Token.Scarlett){
+//            UI.setColor(Color.RED.brighter());
+//        }if (this.token == Token.Mustard)
+//            UI.setColor(Color.YELLOW.darker());
+//        if (this.token == Token.Green)
+//            UI.setColor(Color.GREEN);
+//        if (this.token == Token.Peacock)
+//            UI.setColor(Color.CYAN);
+//        if (this.token == Token.White)
+//            UI.setColor(Color.GRAY);
+//        if (this.token == Token.Plum)
+//            UI.setColor(Color.magenta);
+//        UI.fillRect(position.x * ratio, position.y * ratio, ratio, ratio); //.etc
+//        UI.setColor(Color.black);
+//    }
 
     public String toString(){
         return String.format(this.name+" who is: "+this.token.toString());

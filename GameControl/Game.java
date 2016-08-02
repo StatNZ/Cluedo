@@ -1,6 +1,6 @@
 package GameControl;
 
-import ecs100.*;
+import File_Readers.Parser;
 import java.util.*;
 
 /**
@@ -14,25 +14,47 @@ import java.util.*;
  */
 public class Game {
 
-    private Board[][] board = new Board[27][27];
+    private Board[][] board;
 
     // Card class containing our collections of cards
     private Card card;
 
     public Game() {
-        this.card = new Card(board);
+
+        // create our cards for the game
+        this.card = new Card();
+
+        // read our board in from a text file
+       board = Parser.parseFile(this);
     }
 
-    public void draw(){
-        UI.clearGraphics();
-        for (int i=0; i<board.length; i++){
-            for (int j=0; j<board[0].length; j++){
-                if (board[i][j] != null){
-                    board[i][j].draw();
-                }
+    public String printBoard(Player p){
+        String output = "";
+        for (int x=0; x<board.length; x++){
+            for (int y=0; y<board[0].length; y++){
+                if (board[x][y] instanceof Room || board[x][y] instanceof Door)
+                    output += board[x][y].printArray()+" ";
+                else if (x == p.getPosition().x && y == p.getPosition().y)
+                    output += "P ";
+                else
+                    output += ". ";
+
             }
+            output += "\n";
         }
+        return output;
     }
+
+//    public void draw(){
+//        UI.clearGraphics();
+//        for (int i=0; i<board.length; i++){
+//            for (int j=0; j<board[0].length; j++){
+//                if (board[i][j] != null){
+//                    board[i][j]
+//                }
+//            }
+//        }
+//    }
 
     /**
      * Here we set up our player with their initial position on where they will be
@@ -45,30 +67,18 @@ public class Game {
      */
     public Player addPlayer(String name, Player.Token token){
         switch (token){
-            case Scarlett://1,17
-                Player p1 = new Player(name,token,1,17);
-                p1.setStartPosition(board);
-                return p1;
-            case Plum://6,25
-                Player p2 = new Player(name, token,6,25);
-                p2.setStartPosition(board);
-                return p2;
-            case White://25/19
-                Player p3 = new Player(name,token,25,19);
-                p3.setStartPosition(board);
-                return p3;
+            case Scarlett:
+                return new Player(name,token,Parser.playersStartPositions.get(0));
+            case Plum:
+               return new Player(name, token,Parser.playersStartPositions.get(1));
+            case White:
+                return new Player(name,token,Parser.playersStartPositions.get(2));
             case Peacock:
-                Player p4 = new Player(name,token,25,5);
-                p4.setStartPosition(board);
-                return p4;
+                return new Player(name,token,Parser.playersStartPositions.get(3));
             case Green:
-                Player p5 = new Player(name,token,17,1);
-                p5.setStartPosition(board);
-                return p5;
+                return new Player(name,token,Parser.playersStartPositions.get(4));
             case Mustard:
-                Player p6 = new Player(name,token,8,1);
-                p6.setStartPosition(board);
-                return p6;
+                return new Player(name,token,Parser.playersStartPositions.get(5));
             default:
                 throw new IllegalArgumentException("Player selection was abnormally exited");
         }
@@ -148,7 +158,7 @@ public class Game {
     public void movePlayer(Player player, int nmoves, Room room){
         // current position of player
         Node start = new Node(null,player.getPosition());
-        Node end = new Node(null,room.getDoor().getPos());
+        Node end = new Node(null,room.getDoor(player.getPosition()).getPos());
         start.setGoal(end);
         end.setGoal(end);
 
@@ -173,14 +183,14 @@ public class Game {
                     // put the player in the room and update position
                     player.enterRoom(r);
                     player.move(board,pathToFollow.get(i));
-                    draw();
+
                     return;
                 }else{
                     // player said no, so if room we want to travel to
                     // is equal to the room we are at, we end our turn
                     if (room.equals(r)) {
                         player.move(board, pathToFollow.get(i));
-                        draw();
+
                         return;
                     }//else carry on with the program
                 }
@@ -190,8 +200,8 @@ public class Game {
             player.move(board,pathToFollow.get(i));
 
             // Todo: UI AND DRAW ARE DEBUGGING MATERIAL
-            UI.sleep(100);
-            draw();
+            //UI.sleep(100);
+
             i--;
             nmoves--;
         }
