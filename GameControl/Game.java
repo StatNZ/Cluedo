@@ -35,7 +35,7 @@ public class Game {
                 if (board[x][y] instanceof Room || board[x][y] instanceof Door)
                     output += board[x][y].printArray()+" ";
                 else if (x == p.getPosition().x && y == p.getPosition().y)
-                    output += "P ";
+                    output += "A ";
                 else
                     output += ". ";
 
@@ -157,7 +157,17 @@ public class Game {
      */
     public void movePlayer(Player player, int nmoves, Room room){
         // current position of player
-        Node start = new Node(null,player.getPosition());
+        Node start = null;
+        // check to see if our room has multiple doors
+        if (room.getDoors().size() > 1){
+            Door door = null;
+            for (Door d: room.getDoors()){
+
+            }
+        }
+        start = new Node(null,player.getPosition());
+
+
         Node end = new Node(null,room.getDoor(player.getPosition()).getPos());
         start.setGoal(end);
         end.setGoal(end);

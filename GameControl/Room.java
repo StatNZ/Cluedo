@@ -52,6 +52,10 @@ public class Room extends Card implements Board{
         return this.secretPassage;
     }
 
+    public Set<Door> getDoors(){
+        return this.doors;
+    }
+
     /**
      * Creates a door at the specified position and returns a new door object
      * @param p

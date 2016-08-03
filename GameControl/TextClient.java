@@ -109,6 +109,18 @@ public class TextClient {
     }
 
     /**
+     * Print a detailed list of what is in your deck/hand/notepad
+     * @param type
+     * @param toPrint
+     */
+    private static void printOptions(String type, String toPrint){
+        System.out.println("\nListing cards in your "+type);
+        System.out.println("*********************************");
+        System.out.println(toPrint);
+        System.out.println("*********************************");
+    }
+
+    /**
      * A detailed list of the players options
      */
     private static void displayPlayersOptions(){
@@ -116,8 +128,7 @@ public class TextClient {
         System.out.println("move: Move player on the board toward a room");
         System.out.println("accuse: Accuse a player of the murder...");
         System.out.println("hand: Show cards dealt to you from the beginning");
-        System.out.println("notepad: Show the cards revealed by other players");
-        System.out.println("list: Show all cards collected so far");
+        System.out.println("notepad: Show all cards in your hand and cards which have been revealed to you");
         System.out.println("more: Shows these options again");
         System.out.println("view: Print the board to the text pane");
         System.out.println("end: End your current turn!");
@@ -154,10 +165,11 @@ public class TextClient {
                 System.out.println(game.printBoard(player));
                 playerOptions(player,nmove,game);
                 return;
+
             // move [player can only move less or equal to the dice roll]
             // player must choose a room they wish to move close towards
             case "move":
-                moveOptions(player,nmove,game);
+                moveCurrentPlayer(player,nmove,game);
                 return;
 
             // print the cards that are in your hand
@@ -166,9 +178,10 @@ public class TextClient {
                 playerOptions(player,nmove,game);
                 return;
 
-            // print the cards that have been revealed by other players
+            // print the cards that have been revealed by other players and that
+            // are in your hand
             case "notepad":
-                printOptions(option,player.printDetectiveNotepad());
+                printOptions(option,player.printHandAndNotepad());
                 playerOptions(player,nmove,game);
                 return;
 
@@ -178,13 +191,6 @@ public class TextClient {
                 //debug
                 System.out.println("Player "+player.getName()+" accuses");
                 suggestOptions(player,game,true);
-                return;
-
-            // list all the cards that have been collected aswell as your own since
-            // the beginning of the game
-            case "list":
-                printOptions(option,player.printHandAndNotepad());
-                playerOptions(player,nmove,game); // loop back until the player chooses a valid option
                 return;
 
             // display a detailed list of players options
@@ -204,16 +210,7 @@ public class TextClient {
         }
     }
 
-    private static void secretPassage(){
 
-    }
-
-    private static void printOptions(String type, String toPrint){
-        System.out.println("\nListing cards in your "+type);
-        System.out.println("*********************************");
-        System.out.println(toPrint);
-        System.out.println("*********************************");
-    }
 
     /**
      * A more controlled version of moving a player in the game
@@ -221,7 +218,7 @@ public class TextClient {
      * @param nmove
      * @param game
      */
-    private static void moveOptions(Player player, int nmove, Game game){
+    private static void moveCurrentPlayer(Player player, int nmove, Game game){
         while (true){
             try {
                 String inputRoom = inputString("Choose a room to move towards");
@@ -235,7 +232,7 @@ public class TextClient {
                     System.out.println("You are already in this room, choose another room or end your turn!");
                     String input = inputString("[move/end]");
                     if (input.contains("move")){
-                        moveOptions(player,nmove,game);
+                        moveCurrentPlayer(player,nmove,game);
                         return;
                     }else // ending his turn
                         return;

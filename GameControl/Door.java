@@ -33,6 +33,12 @@ public class Door implements Board{
 
     @Override
     public char printArray() {
-        return '\37';
+        return '\37'; //37
+    }
+
+    public static void main(String[] args){
+        for (int i=0; i<1000; i++){
+            System.out.println("char "+i+" "+(char)(i));
+        }
     }
 }
