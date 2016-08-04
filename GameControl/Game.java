@@ -46,6 +46,10 @@ public class Game {
             }
             output += "\n";
         }
+        output += "\nThe key:\nA = Kitchen,\nB = Ball Room\n" +
+                "C = Conservatory,\nD = Billiard Room,\nE = Library,\n," +
+                "F = Study,\nG = Hall,\nH = Lounge,\nI = Dining room\n" +
+                "Number = Current Player\n";
         return output;
     }
 
