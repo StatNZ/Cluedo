@@ -106,13 +106,16 @@ public class Parser {
                     addToBoard(card.getRoom("Study").addDoor(new Position(row, count)), board, row, count++);
                     break;
                 case '#':
-                    addToBoard(card.getRoom("BLOCKED"), board, row, count++);
+                    addToBoard(new Room("BLOCKED"), board, row, count++);
                     break;
                 case 's':
-                    addToBoard(card.getRoom("Solution"), board, row, count++);
+                    addToBoard(new Room("Solution"), board, row, count++);
                     break;
                 case '.': // these are the paths in which we can move
                     addToBoard(null, board, row, count++);
+                    break;
+                case '*': // NO go zones, they are liked blocked but not
+                    addToBoard(new Room("INSIDE"), board, row, count++);
                     break;
                 case 'P': // players start position
                     playersStartPositions.add(new Position(row, count++));

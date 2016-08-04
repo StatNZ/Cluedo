@@ -51,6 +51,6 @@ public class Game_Test {
     }
 
     public Player setupMockPlayer1(Game game) {
-        return game.addPlayer("jack", Player.Token.Scarlett);
+        return game.addPlayer("jack", Player.Token.MissScarlett,0);
     }
 }

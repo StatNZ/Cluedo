@@ -70,6 +70,28 @@ public class Room extends Card implements Board {
     }
 
     /**
+     * Choose the closest door relevant to the other door
+     * @return this will return 'this' closest door to the other door
+     */
+    public Door selectBestDoorToDoor(Room room){
+        // iterate through both sets finding which door of myDoor is closes to the other door
+        double closest = Double.MAX_VALUE;
+        Door door = null;
+        for (Door myDoor: doors)
+            for (Door other: room.doors){
+                double check = myDoor.getPos().distance(other.getPos());
+                if (check < closest){
+                    closest = check;
+                    door = myDoor;
+                }
+            }
+        if (door != null)
+            return door;
+        else
+            throw new IllegalArgumentException("Selecting Best Door To Door failed :(!");
+    }
+
+    /**
      * Return the closest door to the current position
      */
     public Door getDoor(Position p) {
@@ -112,26 +134,29 @@ public class Room extends Card implements Board {
     public char printArray() {
         switch (getName()) {
             case "Kitchen":
-                return 'K';
+                return 'A';
             case "Dining Room":
-                return 'D';
+                return 'I';
             case "Hall":
-                return 'H';
+                return 'G';
             case "Billiard Room":
-                return 'P';
+                return 'D';
             case "Ball Room":
                 return 'B';
             case "Lounge":
-                return 'O';
+                return 'H';
             case "Library":
-                return 'L';
+                return 'E';
             case "Study":
-                return 'S';
+                return 'F';
+            case "Conservatory":
+                return 'C';
+            case "INSIDE":
+                return ' ';
             case "BLOCKED"://blocked toilet return poop
             case "Solution":
                 return '#';
-            case "Conservatory":
-                return 'C';
+
         }
         return ' ';
     }

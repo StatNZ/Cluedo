@@ -25,7 +25,7 @@ public class Game {
         // create our cards for the game
         this.card = new Card();
 
-        // read our board in from a text file
+        // read our board in from a text file and populate our game board
         board = Parser.parseFile(this);
     }
 
@@ -33,12 +33,15 @@ public class Game {
         String output = "";
         for (int x = 0; x < board.length; x++) {
             for (int y = 0; y < board[0].length; y++) {
-                if (board[x][y] instanceof Room || board[x][y] instanceof Door)
-                    output += board[x][y].printArray() + " ";
-                else if (x == p.getPosition().x && y == p.getPosition().y)
-                    output += "A ";
+
+                if (x == p.getPosition().x && y == p.getPosition().y)
+                    output += p.playerNumber+" "; // draw our player on the board
+
+                else if (board[x][y] instanceof Room )
+                    output += board[x][y].printArray() + " "; // draw our rooms on the board
+
                 else
-                    output += ". ";
+                    output += ". "; // draw the rest of our squares
 
             }
             output += "\n";
@@ -66,20 +69,20 @@ public class Game {
      * @param name
      * @param token
      */
-    public Player addPlayer(String name, Player.Token token) {
+    public Player addPlayer(String name, Player.Token token, int playerNum) {
         switch (token) {
-            case Scarlett:
-                return new Player(name, token, Parser.playersStartPositions.get(0));
-            case Plum:
-                return new Player(name, token, Parser.playersStartPositions.get(1));
-            case White:
-                return new Player(name, token, Parser.playersStartPositions.get(2));
-            case Peacock:
-                return new Player(name, token, Parser.playersStartPositions.get(3));
-            case Green:
-                return new Player(name, token, Parser.playersStartPositions.get(4));
-            case Mustard:
-                return new Player(name, token, Parser.playersStartPositions.get(5));
+            case MissScarlett:
+                return new Player(name, token, Parser.playersStartPositions.get(0),playerNum);
+            case ProfessorPlum:
+                return new Player(name, token, Parser.playersStartPositions.get(1),playerNum);
+            case MrsWhite:
+                return new Player(name, token, Parser.playersStartPositions.get(2),playerNum);
+            case MrsPeacock:
+                return new Player(name, token, Parser.playersStartPositions.get(3),playerNum);
+            case MrGreen:
+                return new Player(name, token, Parser.playersStartPositions.get(4),playerNum);
+            case ColonelMustard:
+                return new Player(name, token, Parser.playersStartPositions.get(5),playerNum);
             default:
                 throw new IllegalArgumentException("Player selection was abnormally exited");
         }
@@ -148,9 +151,7 @@ public class Game {
      * @return
      */
     public boolean isRoom(Position p) {
-        if (board[p.x][p.y] instanceof Room)
-            return false;
-        return true;
+        return !(board[p.x][p.y] instanceof Room);
     }
 
     /**
@@ -158,32 +159,33 @@ public class Game {
      * In the future we will implement this move function with more logic. We will attempt
      * to move the player in a A* fashion towards a room/door of the players choosing
      *
-     * @param player
-     * @param nmoves
+     * @param player - the current player who's turn it is
+     * @param nmoves - the number of steps we can take (either determined by dice roll, or if player selects < dice roll)
      * @param room   - this is the destination we want to get to
      */
     public void movePlayer(Player player, int nmoves, Room room) {
-        // current position of player
-        Node start = null;
-        // check to see if our room has multiple doors
-        if (room.getDoors().size() > 1) {
-            Door door = null;
-            for (Door d : room.getDoors()) {
 
-            }
+        // choose the best door to start from
+        if (player.getRoom() != null){
+            Door startingDoor = player.getRoom().selectBestDoorToDoor(room);
+            player.move(startingDoor.getPos());
         }
-        start = new Node(null, player.getPosition());
 
+        // make the player leave the room
+        player.leaveRoom();
 
+        // setup A* instructions
+        Node start = new Node(null, player.getPosition());
         Node end = new Node(null, room.getDoor(player.getPosition()).getPos());
         start.setGoal(end);
         end.setGoal(end);
 
-        // compute A*
+        // compute A* algorithm
         Node path = Astar(start, end);
         List<Position> pathToFollow = new ArrayList<>();
         addPath(pathToFollow, path);
 
+        // make the player follow the A* path
         int i = pathToFollow.size() - 1;
         while (nmoves != 0) {
 
@@ -194,33 +196,28 @@ public class Game {
             Door door = isDoor(pathToFollow.get(i));
             if (door != null) {
                 Room r = door.getRoom();
+
                 // give client the option to enter room
-                String inp = TextClient.inputString("Would you like to enter room " + r.getName() + ": yes/no?");
-                if (inp.contains("y")) {
+                String input = TextClient.inputString("Would you like to enter room " + r.getName() + ": yes/no?");
+
+                if (input.contains("y")) {
                     // put the player in the room and update position
                     player.enterRoom(r);
-                    player.move(board, pathToFollow.get(i));
-
+                    player.move(pathToFollow.get(i));
                     return;
                 } else {
                     // player said no, so if room we want to travel to
                     // is equal to the room we are at, we end our turn
                     if (room.equals(r)) {
-                        player.move(board, pathToFollow.get(i));
-
+                        player.move(pathToFollow.get(i));
                         return;
                     }//else carry on with the program
                 }
             }
 
             // move the player
-            player.move(board, pathToFollow.get(i));
-
-            // Todo: UI AND DRAW ARE DEBUGGING MATERIAL
-            //UI.sleep(100);
-
-            i--;
-            nmoves--;
+            player.move(pathToFollow.get(i));
+            i--;    nmoves--;
         }
     }
 
@@ -280,11 +277,9 @@ public class Game {
     public Set<Card> getSolution() {
         return card.getSolution();
     }
-
     public String printSolution() {
         return card.printSolution();
     }
-
     public String toString() {
         return board.toString();
     }

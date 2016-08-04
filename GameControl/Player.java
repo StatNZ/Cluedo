@@ -12,6 +12,16 @@ import java.util.*;
  */
 public class Player {
 
+    // Could possibly do enums for Tokens
+    public enum Token {
+        MissScarlett,
+        ProfessorPlum,
+        MrGreen,
+        MrsWhite,
+        MrsPeacock,
+        ColonelMustard
+    }
+
     // the players position on the board
     private Position position;
     private List<Card> hand; // our given cards at the beginning the ones we show to other players
@@ -19,11 +29,15 @@ public class Player {
     private Token token; // the token a player will play during the game
     private String name;
     private Room room; // the current room the player is in
+    private boolean wasMoved = false; // the player was moved to a room
 
-    public Player(String name, Token token, Position position) {
+    public final int playerNumber;
+
+    public Player(String name, Token token, Position position, int playerNumber) {
         this.name = name;
         this.token = token;
         this.position = position;
+        this.playerNumber = playerNumber;
         hand = new ArrayList<>();
         inventory = new HashSet<>();
     }
@@ -58,10 +72,25 @@ public class Player {
     }
 
     /**
-     * A player leaves the room
+     * A player was moved to a room
+     */
+    public void setWasMoved(){
+        this.wasMoved = true;
+    }
+
+    /**
+     * Returns if a player was moved or not
+     */
+    public boolean getWasMoved(){
+        return wasMoved;
+    }
+
+    /**
+     * A player leaves the room, and they were not moved
      */
     public void leaveRoom() {
         this.room = null;
+        this.wasMoved = false;
     }
 
     /**
@@ -164,7 +193,7 @@ public class Player {
      *
      * @param p the updated position
      */
-    public void move(Board[][] board, Position p) {
+    public void move(Position p) {
 //        board[position.x][position.y] = null;
 //        this.position = p;
 //        // update board
@@ -199,13 +228,5 @@ public class Player {
 //        UI.setColor(Color.black);
 //    }
 
-    // Could possibly do enums for Tokens
-    public enum Token {
-        Scarlett,
-        Plum,
-        Green,
-        White,
-        Peacock,
-        Mustard
-    }
+
 }

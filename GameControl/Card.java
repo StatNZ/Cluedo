@@ -1,6 +1,7 @@
 package GameControl;
 
 import java.util.*;
+import java.util.regex.Pattern;
 
 /**
  * A GameControl.Card is either a GameControl.Character, GameControl.Weapon, or GameControl.Room. Each card has
@@ -63,17 +64,13 @@ public class Card {
         rooms.add(new Room("Ball Room"));
         rooms.add(new Room("Dining Room"));
 
-        // create mock room cards, these cards will never be used
-        rooms.add(new Room("BLOCKED"));
-        rooms.add(new Room("Solution"));
-
         // set up our character and weapon cards
         // characters
         Character scarlett = new Character("Miss Scarlett");
         Character mustard = new Character("Colonel Mustard");
-        Character green = new Character("Mr. Green");
-        Character peacock = new Character("Mrs. Peacock");
-        Character white = new Character("Mrs. White");
+        Character green = new Character("Mr Green");
+        Character peacock = new Character("Mrs Peacock");
+        Character white = new Character("Mrs White");
         Character plum = new Character("Professor Plum");
 
         // weapons
@@ -195,9 +192,13 @@ public class Card {
      */
     public void dealCards(List<Player> players) {
         List<Card> modifiedDeck = removeSolutionFromDeck();
-        while (deckCount < modifiedDeck.size())
-            for (Player p : players)
-                p.addCardToHand(modifiedDeck.get(deckCount++));
+        while (true)
+            for (Player p : players){
+                if (this.deckCount >= modifiedDeck.size())
+                    return;
+                p.addCardToHand(modifiedDeck.get(this.deckCount++));
+            }
+
     }
 
     /**
@@ -209,7 +210,7 @@ public class Card {
      */
     private List<Card> removeSolutionFromDeck() {
         List<Card> modified = new ArrayList<>();
-        for (Card c : deck) {
+        for (Card c : this.deck) {
             if (!solution.contains(c))
                 modified.add(c);
         }
@@ -236,4 +237,5 @@ public class Card {
     public String toString() {
         return name;
     }
+
 }

@@ -55,9 +55,7 @@ public class Position {
      * @return
      */
     public boolean isFree() {
-        if (this.x <= 0 || this.y > 25 || this.x > 25 || this.y <= 0)
-            return false;
-        return true;
+        return !(this.x < 0 || this.y > 24 || this.x > 24 || this.y < 0);
     }
 
     @Override
