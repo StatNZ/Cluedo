@@ -1,6 +1,6 @@
 package GameControl;
 
-import ecs100.UI;
+
 
 /**
  * The GameControl.Door class is used to enter a GameControl.Room. A player will walk
@@ -39,7 +39,7 @@ public class Door implements Board {
 
     @Override
     public void draw() {
-        UI.fillRect(position.x * ratio, position.y * ratio, ratio, ratio);
+        //UI.fillRect(position.x * ratio, position.y * ratio, ratio, ratio);
     }
 
     @Override

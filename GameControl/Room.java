@@ -1,7 +1,5 @@
 package GameControl;
 
-import ecs100.UI;
-
 import java.util.HashSet;
 import java.util.Set;
 
@@ -124,10 +122,10 @@ public class Room extends Card implements Board {
 
     @Override
     public void draw() {
-        UI.drawRect(position.x * ratio, position.y * ratio, width * ratio, height * ratio);
-        for (Door d : this.doors) {
-            d.draw();
-        }
+//        UI.drawRect(position.x * ratio, position.y * ratio, width * ratio, height * ratio);
+//        for (Door d : this.doors) {
+//            d.draw();
+//        }
     }
 
     @Override
