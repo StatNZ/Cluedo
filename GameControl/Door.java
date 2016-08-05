@@ -1,7 +1,6 @@
 package GameControl;
 
 
-
 /**
  * The GameControl.Door class is used to enter a GameControl.Room. A player will walk
  * on top of a door and must choose to enter or pass by.

@@ -1,6 +1,9 @@
 package File_Readers;
 
-import GameControl.*;
+import GameControl.Board;
+import GameControl.Game;
+import GameControl.Position;
+import GameControl.Room;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,6 +28,7 @@ public class Parser {
             while (scan.hasNext()) {
                 readString.add(scan.next());
             }
+            scan.close();
         } catch (IOException e) {
             System.out.println("File failure " + e);
         }
@@ -50,8 +54,7 @@ public class Parser {
         while (count < input.length()) {
             char c = input.charAt(index++);
             switch (c) {
-                case 'k': //create room kitchen
-                    Room kitchen = card.getRoom("Kitchen");
+                case 'k': //create room kitchen                   
                     addToBoard(card.getRoom("Kitchen"), board, row, count++);
                     break;
                 case 'K': //create door kitchen

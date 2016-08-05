@@ -1,6 +1,7 @@
 package GameControl;
 
-import java.awt.*;
+import GameControl.Player;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -19,16 +20,13 @@ public class TextClient {
     private static List<Player> players;
     private static List<Player> excludedPlayers;
 
-    private static int displayCount = 0;
-
     /**
      * Get integer from System.in
-     * <p>
      * Author: DJP
      */
     private static int inputNumber(String msg) {
         System.out.print(msg + " ");
-        while (1 == 1) {
+        while (true) {
             BufferedReader input = new BufferedReader(new InputStreamReader(
                     System.in));
             try {
@@ -52,7 +50,7 @@ public class TextClient {
      */
     public static String inputString(String msg) {
         System.out.print(msg + " ");
-        while (1 == 1) {
+        while (true) {
             BufferedReader input = new BufferedReader(new InputStreamReader(
                     System.in));
             try {
@@ -61,7 +59,7 @@ public class TextClient {
                 return s;
             } catch (IOException e) {
                 System.out.println("I/O Error ... please try again!");
-            }catch (IllegalArgumentException e) {
+            } catch (IllegalArgumentException e) {
                 System.out.println(e.getMessage());
             }
         }
@@ -101,7 +99,7 @@ public class TextClient {
                     tokenName = inputString("Player #" + i + " token?");
                     token = Player.Token.valueOf(tokenName);
                     break;
-                }catch (IllegalArgumentException e){
+                } catch (IllegalArgumentException e) {
                     System.out.println("Incorrect name! Please type the name as it is printed above");
                 }
             }
@@ -121,7 +119,7 @@ public class TextClient {
                 token = Player.Token.valueOf(tokenName);
             }
             tokens.remove(token);
-            players.add(game.addPlayer(name, token,i));
+            players.add(game.addPlayer(name, token, i));
         }
         return players;
     }
@@ -167,13 +165,13 @@ public class TextClient {
         Room room = player.getRoom();
         if (room != null) {
             // check to see player was moved to this room
-            if (player.getWasMoved()){
+            if (player.getWasMoved()) {
                 // display a message to the player informing them of a secret passage
-                System.out.println("You were placed in the "+room.toString()+" by another palyer");
+                System.out.println("You were placed in the " + room.toString() + " by another palyer");
                 String input = inputString("Would you like to stay here? (y/n)");
 
-                if (input.toLowerCase().startsWith("y")){
-                    suggestOptions(player,game,false);
+                if (input.toLowerCase().startsWith("y")) {
+                    suggestOptions(player, game, false);
                     return; // end this players turn
                 } // else no player can choose other option
             }
@@ -182,7 +180,7 @@ public class TextClient {
             if (room.hasSecretPassage(game)) {
 
                 // display a message to the player informing them of a secret passage
-                System.out.println("The "+room.toString()+" leads to " + room.getSecretPassage().getName());
+                System.out.println("The " + room.toString() + " leads to " + room.getSecretPassage().getName());
                 String input = inputString("Would you like to go there now? (y/n)");
 
                 if (input.toLowerCase().startsWith("y")) {
@@ -211,7 +209,7 @@ public class TextClient {
                 // print the cards that are in your hand
                 case "hand":
                     printOptions(option, player.printHand());
-                   break; // loop again
+                    break; // loop again
 
                 // print the cards that have been revealed by other players and that
                 // are in your hand
@@ -244,7 +242,7 @@ public class TextClient {
         }
     }
 
-    private static void checkString(String input) throws IllegalArgumentException{
+    private static void checkString(String input) throws IllegalArgumentException {
         if (input == null || input.length() <= 0)
             throw new IllegalArgumentException("Enter a word");
     }
@@ -263,23 +261,19 @@ public class TextClient {
         while (true) {
             try {
                 String inputRoom = inputString("Choose a room to move towards");
-                // Todo: Player has the option to choose a number of steps less then or equal to dice roll
-                //int inputSteps = inputNumber("You can choose x amount of steps less than your dice amount");
 
-
-
-                Room room = decodeRoom(game,inputRoom.toLowerCase());
+                Room room = decodeRoom(game, inputRoom.toLowerCase());
                 if (room == null)
                     room = game.getRoom(inputRoom);
 
                 // check if players chosen room is the same as the current room they are in
                 if (room.equals(player.getRoom())) {
                     // essentially the player wants to stay in the room which they cannot
-                    System.out.println("You are already in the "+player.getRoom()+", choose another room or end your turn!");
+                    System.out.println("You are already in the " + player.getRoom() + ", choose another room or end your turn!");
                     String input = inputString("[move/end]");
 
                     if (input.contains("move")) {
-                        throw new IllegalArgumentException(); // rerun this method
+                        throw new IllegalArgumentException(" "); // rerun this method
                     } else // ending his turn
                         return;
 
@@ -290,9 +284,9 @@ public class TextClient {
                 // are required to make a suggestion of who the killer could be...
                 if (player.getRoom() != null) {
                     suggestOptions(player, game, false);
-                    System.out.println("\n"+player.toString()+" has moved towards "+player.getRoom());
-                }else
-                    System.out.println("\n"+player.toString()+" has moved towards "+room.toString());
+                    System.out.println("\n" + player.toString() + " has entered the " + player.getRoom());
+                } else
+                    System.out.println("\n" + player.toString() + " has moved towards the " + room.toString());
 
                 return;
             } catch (IllegalArgumentException e) {
@@ -302,9 +296,9 @@ public class TextClient {
         }
     }
 
-    private static Room decodeRoom(Game game, String input){
-        String s = input.substring(0,1);
-        switch (s){
+    private static Room decodeRoom(Game game, String input) {
+        String s = input.substring(0, 1);
+        switch (s) {
             case "a":
                 return game.getRoom("Kitchen");
             case "b":
@@ -374,6 +368,9 @@ public class TextClient {
                 guess.add(character);
                 guess.add(weapon);
 
+                // it is essentially the end of the players turn, hide their information
+                createSpace();
+
                 // displays the information on the output of what the current player suggested
                 System.out.println();
                 System.out.println("Player " + player.getName() + " who is " + player.getToken().name() + " asks...");
@@ -391,6 +388,7 @@ public class TextClient {
                 else
                     System.out.println("No player revealed a card, put on your poker face :)");
 
+                return;
             } catch (IllegalArgumentException e) {
                 System.out.println(e.getMessage());
             }
@@ -398,11 +396,21 @@ public class TextClient {
     }
 
     /**
+     * Creates new lines within our text pane, useful for other players not being able
+     * to see a previous players information
+     */
+    private static void createSpace() {
+        for (int i = 0; i < 100; i++)
+            System.out.println();
+    }
+
+    /**
      * Moves the player to it's new location room, also updates the players location
+     *
      * @param player
      * @param room
      */
-    private static void moveAccused(Player player, Room room){
+    private static void moveAccused(Player player, Room room) {
         // because some rooms have multiple doors, it is best to sit a player at a door of
         // whichever our room returns, (as our rooms are stored in a set)
 
@@ -418,12 +426,13 @@ public class TextClient {
 
     /**
      * Returns the player corresponding to the token otherwise null
+     *
      * @param token
      * @return
      */
-    private static Player getPlayer(Player.Token token){
-        for (Player p: players){
-            if (p.getToken() == token){
+    private static Player getPlayer(Player.Token token) {
+        for (Player p : players) {
+            if (p.getToken() == token) {
                 return p;
             }
         }
@@ -477,6 +486,8 @@ public class TextClient {
             System.out.println("Game Over");
             System.exit(0);// exit the program
         } else { // the guess was incorrect therefor the player is excluded
+            // clear the screen
+            createSpace();
             System.out.println("Your accusation was incorrect. You have been eliminated");
             excludedPlayers.add(player);
             if (players.size() - excludedPlayers.size() < 2) {
@@ -490,6 +501,7 @@ public class TextClient {
 
     /**
      * Prints to the console the winning solution
+     *
      * @param game
      */
     private static void printSolution(Game game) {
@@ -500,7 +512,7 @@ public class TextClient {
 
     /**
      * Access point to the game
-     *
+     * <p>
      * I took this method from DJP
      *
      * @param args
@@ -530,12 +542,10 @@ public class TextClient {
         // deal cards to all the players
         game.dealCards(players);
 
-
-
         // play the game
         int turn = 1;
         Random dice = new Random();
-        while (1 == 1) {
+        while (true) {
 
             System.out.println("\n********************");
             System.out.println("***** TURN " + turn + " *******");

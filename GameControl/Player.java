@@ -1,6 +1,10 @@
 package GameControl;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Each player is a character in the game of cluedo. A player will
@@ -12,16 +16,7 @@ import java.util.*;
  */
 public class Player {
 
-    // Could possibly do enums for Tokens
-    public enum Token {
-        MissScarlett,
-        ProfessorPlum,
-        MrGreen,
-        MrsWhite,
-        MrsPeacock,
-        ColonelMustard
-    }
-
+    public final int playerNumber;
     // the players position on the board
     private Position position;
     private List<Card> hand; // our given cards at the beginning the ones we show to other players
@@ -30,8 +25,6 @@ public class Player {
     private String name;
     private Room room; // the current room the player is in
     private boolean wasMoved = false; // the player was moved to a room
-
-    public final int playerNumber;
 
     public Player(String name, Token token, Position position, int playerNumber) {
         this.name = name;
@@ -62,6 +55,10 @@ public class Player {
         return this.token;
     }
 
+    public Collection<Card> getHand() {
+        return this.hand;
+    }
+
     /**
      * A player enters a room
      *
@@ -74,14 +71,14 @@ public class Player {
     /**
      * A player was moved to a room
      */
-    public void setWasMoved(){
+    public void setWasMoved() {
         this.wasMoved = true;
     }
 
     /**
      * Returns if a player was moved or not
      */
-    public boolean getWasMoved(){
+    public boolean getWasMoved() {
         return wasMoved;
     }
 
@@ -189,15 +186,11 @@ public class Player {
     }
 
     /**
-     * Move the player to a new position
+     * Move the player to a new position / changes the players position
      *
      * @param p the updated position
      */
     public void move(Position p) {
-//        board[position.x][position.y] = null;
-//        this.position = p;
-//        // update board
-//        board[p.x][p.y] = this;
         this.position = p;
     }
 
@@ -205,28 +198,15 @@ public class Player {
         return String.format(this.name + " who is: " + this.token.toString());
     }
 
-//    @Override
-//    public void setStartPosition(Board[][] board) {
-//        board[position.x][position.y] = this;
-//    }
-//
-//    @Override
-//    public void draw() {
-//        if (this.token == Token.Scarlett){
-//            UI.setColor(Color.RED.brighter());
-//        }if (this.token == Token.Mustard)
-//            UI.setColor(Color.YELLOW.darker());
-//        if (this.token == Token.Green)
-//            UI.setColor(Color.GREEN);
-//        if (this.token == Token.Peacock)
-//            UI.setColor(Color.CYAN);
-//        if (this.token == Token.White)
-//            UI.setColor(Color.GRAY);
-//        if (this.token == Token.Plum)
-//            UI.setColor(Color.magenta);
-//        UI.fillRect(position.x * ratio, position.y * ratio, ratio, ratio); //.etc
-//        UI.setColor(Color.black);
-//    }
+    // Could possibly do enums for Tokens
+    public enum Token {
+        MissScarlett,
+        ProfessorPlum,
+        MrGreen,
+        MrsWhite,
+        MrsPeacock,
+        ColonelMustard
+    }
 
 
 }

@@ -1,7 +1,11 @@
 package GameControl;
 
-import java.util.*;
-import java.util.regex.Pattern;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * A GameControl.Card is either a GameControl.Character, GameControl.Weapon, or GameControl.Room. Each card has
@@ -100,7 +104,12 @@ public class Card {
 
     /*********************************/
     /*          GETTERS              */
+
     /*********************************/
+
+    public Collection<Card> getDeck() {
+        return this.deck;
+    }
 
     /**
      * Return the name of the card
@@ -135,7 +144,7 @@ public class Card {
             if (r.getName().toLowerCase().contains(name.toLowerCase()))
                 return r;
         }
-        throw new IllegalArgumentException("Name: " + name + " was not located in the room category!");
+        throw new IllegalArgumentException("Name: " + name + " is not a valid card");
     }
 
     public Character getCharacter(String name) {
@@ -143,7 +152,7 @@ public class Card {
             if (c.getName().toLowerCase().contains(name.toLowerCase()))
                 return c;
         }
-        throw new IllegalArgumentException("Name: " + name + " was not located in the character category!");
+        throw new IllegalArgumentException("Name: " + name + " is not a valid card");
     }
 
     public Weapon getWeapon(String name) {
@@ -151,7 +160,7 @@ public class Card {
             if (w.getName().toLowerCase().contains(name.toLowerCase()))
                 return w;
         }
-        throw new IllegalArgumentException("Name: " + name + " was not located in the weapon category!");
+        throw new IllegalArgumentException("Name: " + name + " is not a valid card");
     }
 
     /**
@@ -193,7 +202,7 @@ public class Card {
     public void dealCards(List<Player> players) {
         List<Card> modifiedDeck = removeSolutionFromDeck();
         while (true)
-            for (Player p : players){
+            for (Player p : players) {
                 if (this.deckCount >= modifiedDeck.size())
                     return;
                 p.addCardToHand(modifiedDeck.get(this.deckCount++));

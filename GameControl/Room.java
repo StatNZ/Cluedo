@@ -69,16 +69,17 @@ public class Room extends Card implements Board {
 
     /**
      * Choose the closest door relevant to the other door
+     *
      * @return this will return 'this' closest door to the other door
      */
-    public Door selectBestDoorToDoor(Room room){
+    public Door selectBestDoorToDoor(Room room) {
         // iterate through both sets finding which door of myDoor is closes to the other door
         double closest = Double.MAX_VALUE;
         Door door = null;
-        for (Door myDoor: doors)
-            for (Door other: room.doors){
+        for (Door myDoor : doors)
+            for (Door other : room.doors) {
                 double check = myDoor.getPos().distance(other.getPos());
-                if (check < closest){
+                if (check < closest) {
                     closest = check;
                     door = myDoor;
                 }

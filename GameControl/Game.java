@@ -1,8 +1,13 @@
 package GameControl;
 
-import File_Readers.Parser;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.PriorityQueue;
+import java.util.Queue;
+import java.util.Set;
 
-import java.util.*;
+import File_Readers.Parser;
 
 /**
  * This class is where we control all the functionality that has to do with
@@ -35,9 +40,9 @@ public class Game {
             for (int y = 0; y < board[0].length; y++) {
 
                 if (x == p.getPosition().x && y == p.getPosition().y)
-                    output += p.playerNumber+" "; // draw our player on the board
+                    output += p.playerNumber + " "; // draw our player on the board
 
-                else if (board[x][y] instanceof Room )
+                else if (board[x][y] instanceof Room)
                     output += board[x][y].printArray() + " "; // draw our rooms on the board
 
                 else
@@ -76,17 +81,17 @@ public class Game {
     public Player addPlayer(String name, Player.Token token, int playerNum) {
         switch (token) {
             case MissScarlett:
-                return new Player(name, token, Parser.playersStartPositions.get(0),playerNum);
+                return new Player(name, token, Parser.playersStartPositions.get(0), playerNum);
             case ProfessorPlum:
-                return new Player(name, token, Parser.playersStartPositions.get(1),playerNum);
+                return new Player(name, token, Parser.playersStartPositions.get(1), playerNum);
             case MrsWhite:
-                return new Player(name, token, Parser.playersStartPositions.get(2),playerNum);
+                return new Player(name, token, Parser.playersStartPositions.get(2), playerNum);
             case MrsPeacock:
-                return new Player(name, token, Parser.playersStartPositions.get(3),playerNum);
+                return new Player(name, token, Parser.playersStartPositions.get(3), playerNum);
             case MrGreen:
-                return new Player(name, token, Parser.playersStartPositions.get(4),playerNum);
+                return new Player(name, token, Parser.playersStartPositions.get(4), playerNum);
             case ColonelMustard:
-                return new Player(name, token, Parser.playersStartPositions.get(5),playerNum);
+                return new Player(name, token, Parser.playersStartPositions.get(5), playerNum);
             default:
                 throw new IllegalArgumentException("Player selection was abnormally exited");
         }
@@ -116,12 +121,12 @@ public class Game {
     }
 
     /**
-     * Return the specified card using a string which will be the name of the card
+     * Returns the card object class
      *
      * @return
      */
-    public Card getCard(String name) {
-        return card.getCard(name);
+    public Card getCard() {
+        return this.card;
     }
 
     /**
@@ -170,13 +175,10 @@ public class Game {
     public void movePlayer(Player player, int nmoves, Room room) {
 
         // choose the best door to start from
-        if (player.getRoom() != null){
+        if (player.getRoom() != null) {
             Door startingDoor = player.getRoom().selectBestDoorToDoor(room);
             player.move(startingDoor.getPos());
         }
-
-        // make the player leave the room
-        player.leaveRoom();
 
         // setup A* instructions
         Node start = new Node(null, player.getPosition());
@@ -189,6 +191,16 @@ public class Game {
         List<Position> pathToFollow = new ArrayList<>();
         addPath(pathToFollow, path);
 
+
+        // a list of rooms/doors the user has chose not to enter
+        List<Room> excludedRooms = new ArrayList<>();
+
+        // add our current room that we are in to the excluded list
+        // the excluded list are the rooms that we have said no to enter into
+        excludedRooms.add(player.getRoom());
+        // remvoe player from the current room as they have chosen to move elsewhere
+        player.leaveRoom();
+
         // make the player follow the A* path
         int i = pathToFollow.size() - 1;
         while (nmoves != 0) {
@@ -198,20 +210,25 @@ public class Game {
             // Check if there is a door in our surrounding position
             // check if new position is a door
             Door door = isDoor(pathToFollow.get(i));
-            if (door != null) {
+            if (door != null && !excludedRooms.contains(door.getRoom())) {
                 Room r = door.getRoom();
 
-                // give client the option to enter room
+                // give player the option to enter room, technically a bug lies here
                 String input = TextClient.inputString("Would you like to enter room " + r.getName() + ": yes/no?");
 
                 if (input.contains("y")) {
                     // put the player in the room and update position
                     player.enterRoom(r);
-                    player.move(pathToFollow.get(i));
+                    player.move(door.getPos());
                     return;
-                } else {
+
+                } else { // player said no
+                    // add the room we chose not to enter to our excluded list
+                    excludedRooms.add(r);
+
                     // player said no, so if room we want to travel to
                     // is equal to the room we are at, we end our turn
+                    // TODO: We may not need this
                     if (room.equals(r)) {
                         player.move(pathToFollow.get(i));
                         return;
@@ -221,7 +238,8 @@ public class Game {
 
             // move the player
             player.move(pathToFollow.get(i));
-            i--;    nmoves--;
+            i--;
+            nmoves--;
         }
     }
 
@@ -281,9 +299,11 @@ public class Game {
     public Set<Card> getSolution() {
         return card.getSolution();
     }
+
     public String printSolution() {
         return card.printSolution();
     }
+
     public String toString() {
         return board.toString();
     }
