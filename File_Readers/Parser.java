@@ -12,6 +12,9 @@ import java.util.List;
 import java.util.Scanner;
 
 /**
+ * This class sole aim is to read our board from a file and assigns appropriate Rooms to the their corresponding
+ * positions.
+ *
  * Created by Jack on 1/08/2016.
  */
 public class Parser {
@@ -20,7 +23,6 @@ public class Parser {
 
     public static Board[][] parseFile(Game game) {
 
-        Board[][] board = null;
         List<String> readString = new ArrayList<>();
 
         try {
@@ -36,7 +38,7 @@ public class Parser {
         // create an appropriate size for our board
         int x = readString.size();
         int y = readString.get(0).length();
-        board = new Board[x][y];
+        Board[][] board = new Board[x][y];
 
         // create objects and add them to our board
         for (int row = 0; row < x; row++) {
@@ -47,7 +49,7 @@ public class Parser {
         return board;
     }
 
-    public static void placeString(Game card, String input, Board[][] board, int row) {
+    private static void placeString(Game card, String input, Board[][] board, int row) {
 
         int index = 0;
         int count = 0;
@@ -130,11 +132,7 @@ public class Parser {
         }
     }
 
-    public static void addToBoard(Board o, Board[][] boards, int row, int col) {
+    private static void addToBoard(Board o, Board[][] boards, int row, int col) {
         boards[row][col] = o;
-    }
-
-    public static void main(String[] args) {
-        Parser.parseFile(new Game());
     }
 }

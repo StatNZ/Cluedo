@@ -1,18 +1,22 @@
 package Tests;
 
-import GameControl.Card;
-import GameControl.Door;
-import GameControl.Game;
-import GameControl.Player;
+import GameControl.*;
 import org.junit.Test;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
+
+import static junit.framework.TestCase.fail;
+
 
 /**
+ * This class tests the validity of the Game Cluedo
+ *
  * Created by Jack on 5/08/2016.
  */
 public class Test_Valid {
-    Main_Tests mainTests = new Main_Tests();
+    private Main_Tests mocks = new Main_Tests();
 
     /**
      * Test that all cards are in the game by their specified name
@@ -20,17 +24,17 @@ public class Test_Valid {
     @org.junit.Test
     public void test_CardsAllInTheGame() {
         Game game = new Game();
-        for (String name : mainTests.getAllRoomNames()) {
+        for (String name : mocks.getAllRoomNames()) {
             Card card = game.getRoom(name);
-            assert card.getName() == name;
+            assert Objects.equals(card.getName(), name);
         }
-        for (String name : mainTests.getAllCharacterNames()) {
+        for (String name : mocks.getAllCharacterNames()) {
             Card card = game.getCharacter(name);
-            assert card.getName() == name;
+            assert Objects.equals(card.getName(), name);
         }
-        for (String name : mainTests.getAllWeaponNames()) {
+        for (String name : mocks.getAllWeaponNames()) {
             Card card = game.getWeapon(name);
-            assert card.getName() == name;
+            assert Objects.equals(card.getName(), name);
         }
     }
 
@@ -51,23 +55,67 @@ public class Test_Valid {
     @Test
     public void test_playerEntersRoom() {
         Game game = new Game();
-        Player p1 = game.addPlayer("Jack", Player.Token.ColonelMustard, 0);
+        Player p1 = mocks.setupMockPlayer(game);
         
         // get the position of the door to the kitchen
-        Door kitchenDoor = game.getRoom("kitchen").getDoor(p1.getPosition());
-        
-        // move the player into the kitchen
-        p1.move(kitchenDoor.getPos());
+        Door kitchenDoor = ((Room)game.getRoom("kitchen")).getDoor(p1.getPosition());
+        game.movePlayer(p1,100,kitchenDoor.getRoom());
 
-        assert p1.getRoom() == game.getRoom("Kitchen");
+        assert p1.getRoom().equals(game.getRoom("Kitchen"));
     }
-    
+
+    /**
+     * Test there are 3 cards in our solution
+     */
+    @Test
+    public void test_solutionCards(){
+        Game game = new Game();
+
+        assert game.getSolution().size() == 3;
+    }
+
+    /**
+     * Test that we have each a Character, Weapon and Room card in our solution
+     */
+    @Test
+    public void test_solutionValidity(){
+        Game game = new Game();
+        Collection<Card> solution = game.getSolution();
+        boolean character = false;
+        boolean weapon = false;
+        boolean room = false;
+
+        for (Card c: solution){
+            if (c instanceof GameControl.Character)
+                character = true;
+            else if (c instanceof Weapon)
+                weapon = true;
+            else if (c instanceof Room)
+                room = true;
+        }
+        assert character == weapon == room == true;
+    }
+
     /**
      * Tests that a player leaves a room
      */
     @Test
     public void test_playerLeavesRoom(){
-    	
+    	Game game = new Game();
+
+        // first put a player in a room
+        Player p1 = mocks.setupMockPlayer(game);
+
+        // get the position of the door to the kitchen
+        Door kitchenDoor = ((Room)game.getRoom("kitchen")).getDoor(p1.getPosition());
+        game.movePlayer(p1,100,kitchenDoor.getRoom());
+
+        assert p1.getRoom() == kitchenDoor.getRoom();
+
+        // remove the player from the room
+        game.movePlayer(p1,2,(Room)game.getRoom("study"));
+
+        assert p1.getRoom() == null;
     }
 
     /**
@@ -77,7 +125,7 @@ public class Test_Valid {
     @Test
     public void test_playersCardsEven() {
         Game game = new Game();
-        List<Player> players = mainTests.setupTwoMockPlayers(game);
+        List<Player> players = mocks.setupTwoMockPlayers(game);
         game.dealCards(players);
 
         // there are 18 cards in a deck, each player is dealt a card until there
@@ -96,6 +144,13 @@ public class Test_Valid {
     @Test
     public void test_playerAdded() {
         Game game = new Game();
+
+        try{
+            game.addPlayer("John", Player.Token.MissScarlett,21);
+
+        }catch (IllegalArgumentException e){
+            fail();
+        }
     }
 
 }

@@ -35,6 +35,7 @@ public class Game {
     }
 
     public String printBoard(Player p) {
+        if (p == null) throw new NullPointerException("Player is null in printBoard");
         String output = "";
         for (int x = 0; x < board.length; x++) {
             for (int y = 0; y < board[0].length; y++) {
@@ -52,22 +53,11 @@ public class Game {
             output += "\n";
         }
         output += "\nThe key:\nA = Kitchen,\nB = Ball Room\n" +
-                "C = Conservatory,\nD = Billiard Room,\nE = Library,\n," +
+                "C = Conservatory,\nD = Billiard Room,\nE = Library\n," +
                 "F = Study,\nG = Hall,\nH = Lounge,\nI = Dining room\n" +
                 "Number = Current Player\n";
         return output;
     }
-
-//    public void draw(){
-//        UI.clearGraphics();
-//        for (int i=0; i<board.length; i++){
-//            for (int j=0; j<board[0].length; j++){
-//                if (board[i][j] != null){
-//                    board[i][j]
-//                }
-//            }
-//        }
-//    }
 
     /**
      * Here we set up our player with their initial position on where they will be
@@ -75,8 +65,8 @@ public class Game {
      * play throughout the game. This does not necessarily mean that they will have
      * that character card in their deck.
      *
-     * @param name
-     * @param token
+     * @param name the name the player will take on for the duration of the game
+     * @param token the Character assigned token
      */
     public Player addPlayer(String name, Player.Token token, int playerNum) {
         switch (token) {
@@ -101,29 +91,29 @@ public class Game {
      * Checks if a door is adjacent to our Position then return
      * a door
      *
-     * @param pos
-     * @return
+     * @param position the position to check whehter there is a door there or not
+     * @return door object - if there is one near the specified position
      */
-    public Door isDoor(Position pos) {
+    public Door isDoor(Position position) {
         // check north
-        if (board[pos.x][pos.y - 1] instanceof Door)
-            return (Door) board[pos.x][pos.y - 1];
+        if (board[position.x][position.y - 1] instanceof Door)
+            return (Door) board[position.x][position.y - 1];
         // south
-        if (board[pos.x][pos.y + 1] instanceof Door)
-            return (Door) board[pos.x][pos.y + 1];
+        if (board[position.x][position.y + 1] instanceof Door)
+            return (Door) board[position.x][position.y + 1];
         // east
-        if (board[pos.x + 1][pos.y] instanceof Door)
-            return (Door) board[pos.x + 1][pos.y];
+        if (board[position.x + 1][position.y] instanceof Door)
+            return (Door) board[position.x + 1][position.y];
         // west
-        if (board[pos.x - 1][pos.y] instanceof Door)
-            return (Door) board[pos.x - 1][pos.y];
+        if (board[position.x - 1][position.y] instanceof Door)
+            return (Door) board[position.x - 1][position.y];
         return null;
     }
 
     /**
      * Returns the card object class
      *
-     * @return
+     * @return Card class
      */
     public Card getCard() {
         return this.card;
@@ -139,7 +129,7 @@ public class Game {
     /**
      * Return a weapon card that contains the string name
      *
-     * @return
+     * @return Weapon card
      */
     public Card getWeapon(String weaponName) {
         return card.getWeapon(weaponName);
@@ -148,7 +138,7 @@ public class Game {
     /**
      * Get the room by string name;
      *
-     * @return
+     * @return Room
      */
     public Room getRoom(String roomName) {
         return card.getRoom(roomName);
@@ -159,7 +149,7 @@ public class Game {
      *
      * @return
      */
-    public boolean isRoom(Position p) {
+    private boolean isRoom(Position p) {
         return !(board[p.x][p.y] instanceof Room);
     }
 
@@ -168,11 +158,14 @@ public class Game {
      * In the future we will implement this move function with more logic. We will attempt
      * to move the player in a A* fashion towards a room/door of the players choosing
      *
+     *
+     *
      * @param player - the current player who's turn it is
      * @param nmoves - the number of steps we can take (either determined by dice roll, or if player selects < dice roll)
      * @param room   - this is the destination we want to get to
+     * @return boolean - true if player has entered a room
      */
-    public void movePlayer(Player player, int nmoves, Room room) {
+    public boolean movePlayer(Player player, int nmoves, Room room) {
 
         // choose the best door to start from
         if (player.getRoom() != null) {
@@ -181,8 +174,9 @@ public class Game {
         }
 
         // setup A* instructions
+        Door closestDoor = room.getDoor(player.getPosition());
         Node start = new Node(null, player.getPosition());
-        Node end = new Node(null, room.getDoor(player.getPosition()).getPos());
+        Node end = new Node(null, closestDoor.getPos());
         start.setGoal(end);
         end.setGoal(end);
 
@@ -191,63 +185,36 @@ public class Game {
         List<Position> pathToFollow = new ArrayList<>();
         addPath(pathToFollow, path);
 
-
-        // a list of rooms/doors the user has chose not to enter
-        List<Room> excludedRooms = new ArrayList<>();
-
-        // add our current room that we are in to the excluded list
-        // the excluded list are the rooms that we have said no to enter into
-        excludedRooms.add(player.getRoom());
-        // remvoe player from the current room as they have chosen to move elsewhere
+        // remove player from the current room as they have chosen to move elsewhere
         player.leaveRoom();
 
         // make the player follow the A* path
-        int i = pathToFollow.size() - 1;
+        int i = pathToFollow.size()-1;
         while (nmoves != 0) {
 
-            if (i < 0) break; //safe guard against out-of-bounds
-
-            // Check if there is a door in our surrounding position
-            // check if new position is a door
-            Door door = isDoor(pathToFollow.get(i));
-            if (door != null && !excludedRooms.contains(door.getRoom())) {
-                Room r = door.getRoom();
-
-                // give player the option to enter room, technically a bug lies here
-                String input = TextClient.inputString("Would you like to enter room " + r.getName() + ": yes/no?");
-
-                if (input.contains("y")) {
-                    // put the player in the room and update position
-                    player.enterRoom(r);
-                    player.move(door.getPos());
-                    return;
-
-                } else { // player said no
-                    // add the room we chose not to enter to our excluded list
-                    excludedRooms.add(r);
-
-                    // player said no, so if room we want to travel to
-                    // is equal to the room we are at, we end our turn
-                    // TODO: We may not need this
-                    if (room.equals(r)) {
-                        player.move(pathToFollow.get(i));
-                        return;
-                    }//else carry on with the program
-                }
+            // we must ensure the player enters the correct room, once they do, we can then update
+            // their new position.
+            if (player.getPosition().equals(closestDoor.getPos())){
+                player.enterRoom(closestDoor.getRoom());
+                return true;
             }
+
+            //safe guard against out-of-bounds
+            if (i < 0) break;
 
             // move the player
             player.move(pathToFollow.get(i));
             i--;
             nmoves--;
         }
+        return false;
     }
 
     /**
      * Helper method for adding our shortest path to the list in
      * which we will use to move our player
      */
-    public void addPath(List<Position> positions, Node path) {
+    private void addPath(List<Position> positions, Node path) {
         while (path.parent != null) {
             positions.add(new Position(path.getPos().x, path.getPos().y));
             path = path.parent;
@@ -258,11 +225,11 @@ public class Game {
      * Algorithm for Astar search which will return a node containing
      * the shortest path to our destination. Should never return null.
      *
-     * @param start
-     * @param end
-     * @return
+     * @param start Source node
+     * @param end Sink node
+     * @return Astar node containing our selected path
      */
-    public Node Astar(Node start, Node end) {
+    private Node Astar(Node start, Node end) {
         Queue<Node> order = new PriorityQueue<>();
         Set<Node> visited = new HashSet<>();
 

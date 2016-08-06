@@ -6,6 +6,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
@@ -48,7 +49,7 @@ public class TextClient {
      * <p>
      * Author: DJP
      */
-    public static String inputString(String msg) {
+    private static String inputString(String msg) {
         System.out.print(msg + " ");
         while (true) {
             BufferedReader input = new BufferedReader(new InputStreamReader(
@@ -74,10 +75,8 @@ public class TextClient {
         List<Player> players = new ArrayList<>();
 
         // A player cannot have the same token as another player
-        ArrayList<Player.Token> tokens = new ArrayList<Player.Token>();
-        for (Player.Token t : Player.Token.values()) {
-            tokens.add(t);
-        }
+        ArrayList<Player.Token> tokens = new ArrayList<>();
+        Collections.addAll(tokens, Player.Token.values());
 
         for (int i = 0; i != nplayers; i++) {
             String name = inputString("Player #" + i + " name?");
@@ -125,9 +124,9 @@ public class TextClient {
     }
 
     /**
-     * Print a detailed list of what is in your deck/hand/notepad
+     * Print a detailed list of cards
      *
-     * @param type
+     * @param type deck/hand/list
      * @param toPrint
      */
     private static void printOptions(String type, String toPrint) {
@@ -264,7 +263,7 @@ public class TextClient {
 
                 Room room = decodeRoom(game, inputRoom.toLowerCase());
                 if (room == null)
-                    room = game.getRoom(inputRoom);
+                    room = (Room)game.getRoom(inputRoom);
 
                 // check if players chosen room is the same as the current room they are in
                 if (room.equals(player.getRoom())) {
@@ -278,14 +277,12 @@ public class TextClient {
                         return;
 
                 }
-                game.movePlayer(player, nmove, room);
 
-                // here we check whether we have entered the room after we have just moved. if so we
-                // are required to make a suggestion of who the killer could be...
-                if (player.getRoom() != null) {
-                    suggestOptions(player, game, false);
-                    System.out.println("\n" + player.toString() + " has entered the " + player.getRoom());
-                } else
+                if (game.movePlayer(player, nmove, room)){
+                    // the player has entered a room
+                    System.out.println(player.toString()+" has just entered the "+room.getName());
+                    suggestOptions(player,game,false);
+                } else // the player did not make it to their chosen room
                     System.out.println("\n" + player.toString() + " has moved towards the " + room.toString());
 
                 return;
@@ -300,23 +297,23 @@ public class TextClient {
         String s = input.substring(0, 1);
         switch (s) {
             case "a":
-                return game.getRoom("Kitchen");
+                return (Room)game.getRoom("Kitchen");
             case "b":
-                return game.getRoom("Ball Room");
+                return (Room)game.getRoom("Ball Room");
             case "c":
-                return game.getRoom("Conservatory");
+                return (Room)game.getRoom("Conservatory");
             case "d":
-                return game.getRoom("Billiard Room");
+                return (Room)game.getRoom("Billiard Room");
             case "e":
-                return game.getRoom("Library");
+                return (Room)game.getRoom("Library");
             case "f":
-                return game.getRoom("Study");
+                return (Room)game.getRoom("Study");
             case "g":
-                return game.getRoom("Hall");
+                return (Room)game.getRoom("Hall");
             case "h":
-                return game.getRoom("Lounge");
+                return (Room)game.getRoom("Lounge");
             case "i":
-                return game.getRoom("Dining Room");
+                return (Room)game.getRoom("Dining Room");
             default:
                 return null;
         }
@@ -329,7 +326,7 @@ public class TextClient {
      * @param player
      * @param game
      */
-    public static void suggestOptions(Player player, Game game, boolean accusing) {
+    private static void suggestOptions(Player player, Game game, boolean accusing) {
         // player asks question
         while (true) {
             System.out.println("********************");
@@ -348,7 +345,7 @@ public class TextClient {
                 if (accusing) {
                     try {
                         String accuseRoom = inputString("In the room");
-                        Room r = game.getRoom(accuseRoom);
+                        Room r = (Room)game.getRoom(accuseRoom);
                         accuseOptions(player, game, character, weapon, r);
                         return;
                     } catch (IllegalArgumentException e) {

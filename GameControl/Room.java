@@ -58,8 +58,8 @@ public class Room extends Card implements Board {
     /**
      * Creates a door at the specified position and returns a new door object
      *
-     * @param p
-     * @return
+     * @param p the position on where to put the door
+     * @return door at the specified position
      */
     public Door addDoor(Position p) {
         Door d = new Door(this, p);
@@ -106,30 +106,6 @@ public class Room extends Card implements Board {
     }
 
     @Override
-    public void setStartPosition(Board[][] board) {
-        int x = position.x;
-        int y = position.y;
-        int width = this.width;
-        int height = this.height;
-        for (int row = x; row < x + width; row++)
-            for (int col = y; col < y + height; col++)
-                board[row][col] = this;
-
-        // set door locations
-        for (Door d : this.doors) {
-            d.setStartPosition(board);
-        }
-    }
-
-    @Override
-    public void draw() {
-//        UI.drawRect(position.x * ratio, position.y * ratio, width * ratio, height * ratio);
-//        for (Door d : this.doors) {
-//            d.draw();
-//        }
-    }
-
-    @Override
     public char printArray() {
         switch (getName()) {
             case "Kitchen":
@@ -152,7 +128,7 @@ public class Room extends Card implements Board {
                 return 'C';
             case "INSIDE":
                 return ' ';
-            case "BLOCKED"://blocked toilet return poop
+            case "BLOCKED":
             case "Solution":
                 return '#';
 

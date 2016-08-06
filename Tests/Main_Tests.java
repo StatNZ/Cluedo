@@ -7,11 +7,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * Mainly just a helper method for setting up mock players and cards
+ *
  * Created by Jack on 5/08/2016.
  */
-public class Main_Tests {
+class Main_Tests {
 
-    public List<String> getAllRoomNames() {
+    List<String> getAllRoomNames() {
         List<String> cardNames = new ArrayList<>();
         cardNames.add("Kitchen");
         cardNames.add("Lounge");
@@ -25,7 +27,7 @@ public class Main_Tests {
         return cardNames;
     }
 
-    public List<String> getAllCharacterNames() {
+    List<String> getAllCharacterNames() {
         List<String> cardNames = new ArrayList<>();
         cardNames.add("Miss Scarlett");
         cardNames.add("Colonel Mustard");
@@ -36,7 +38,7 @@ public class Main_Tests {
         return cardNames;
     }
 
-    public List<String> getAllWeaponNames() {
+    List<String> getAllWeaponNames() {
         List<String> cardNames = new ArrayList<>();
         cardNames.add("Dagger");
         cardNames.add("Candlestick");
@@ -48,12 +50,16 @@ public class Main_Tests {
     }
 
     /**
-     * Helper Method to setup two mock players
-     *
-     * @param game
-     * @return
+     * Sets up a mock player within our game.
      */
-    public List<Player> setupTwoMockPlayers(Game game) {
+    Player setupMockPlayer(Game game){
+        return game.addPlayer("Jack", Player.Token.MrGreen,1);
+    }
+
+    /**
+     * Helper Method to setup two mock players
+     */
+    List<Player> setupTwoMockPlayers(Game game) {
         List<Player> players = new ArrayList<>();
         players.add(game.addPlayer("jack", Player.Token.MissScarlett, 0));
         players.add(game.addPlayer("john", Player.Token.MrGreen, 1));

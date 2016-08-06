@@ -17,12 +17,6 @@ public class Door implements Board {
         this.position = position;
     }
 
-    public static void main(String[] args) {
-        for (int i = 0; i < 1000; i++) {
-            System.out.println("char " + i + " " + (char) (i));
-        }
-    }
-
     public Position getPos() {
         return this.position;
     }
@@ -32,17 +26,7 @@ public class Door implements Board {
     }
 
     @Override
-    public void setStartPosition(Board[][] board) {
-        board[position.x][position.y] = this;
-    }
-
-    @Override
-    public void draw() {
-        //UI.fillRect(position.x * ratio, position.y * ratio, ratio, ratio);
-    }
-
-    @Override
     public char printArray() {
-        return '\37'; //37
+        return ' ';
     }
 }

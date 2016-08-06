@@ -104,7 +104,6 @@ public class Card {
 
     /*********************************/
     /*          GETTERS              */
-
     /*********************************/
 
     public Collection<Card> getDeck() {
@@ -121,8 +120,8 @@ public class Card {
     /**
      * Gets a card from the deck with the specified name
      *
-     * @param name
-     * @return
+     * @param name the name of the card we are searching for
+     * @return Card if it is found
      */
     public Card getCard(String name) {
         for (Card c : deck) {
@@ -144,7 +143,7 @@ public class Card {
             if (r.getName().toLowerCase().contains(name.toLowerCase()))
                 return r;
         }
-        throw new IllegalArgumentException("Name: " + name + " is not a valid card");
+        throw new IllegalArgumentException("Name: " + name + " is not a valid Room card");
     }
 
     public Character getCharacter(String name) {
@@ -152,7 +151,7 @@ public class Card {
             if (c.getName().toLowerCase().contains(name.toLowerCase()))
                 return c;
         }
-        throw new IllegalArgumentException("Name: " + name + " is not a valid card");
+        throw new IllegalArgumentException("Name: " + name + " is not a valid Character card");
     }
 
     public Weapon getWeapon(String name) {
@@ -160,14 +159,14 @@ public class Card {
             if (w.getName().toLowerCase().contains(name.toLowerCase()))
                 return w;
         }
-        throw new IllegalArgumentException("Name: " + name + " is not a valid card");
+        throw new IllegalArgumentException("Name: " + name + " is not a valid Weapon card");
     }
 
     /**
      * Define our solution cards which are randomly chosen and stored in a set.
      * The solution contains 1 Character, 1 Weapon, and 1 Room
      */
-    public void setupSolution() {
+    private void setupSolution() {
         Collections.shuffle(rooms);
         Collections.shuffle(characters);
         Collections.shuffle(weapons);
@@ -215,7 +214,7 @@ public class Card {
      * Removes the solution from the deck and returns
      * a new array to deal the appropriate cards
      *
-     * @return
+     * @return A modified list of cards that do not contain the solution cards (21 cards - 3 cards)
      */
     private List<Card> removeSolutionFromDeck() {
         List<Card> modified = new ArrayList<>();

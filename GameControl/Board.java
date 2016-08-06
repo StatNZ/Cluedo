@@ -13,26 +13,8 @@ package GameControl;
 public interface Board {
 
     /**
-     * Used for scaling the board
-     */
-    public int ratio = 20;
-
-    /**
-     * Here we set our initial locations for players and rooms
-     * on the board
-     *
-     * @param board
-     */
-    public void setStartPosition(Board[][] board);
-
-    /**
-     * This allows us to draw our board to the canvas or text pane
-     */
-    public void draw();
-
-    /**
      * Prints the board to the std.out
      */
-    public char printArray();
+    char printArray();
 
 }
