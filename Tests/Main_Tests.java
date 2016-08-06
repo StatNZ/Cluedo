@@ -53,7 +53,7 @@ class Main_Tests {
      * Sets up a mock player within our game.
      */
     Player setupMockPlayer(Game game){
-        return game.addPlayer("Jack", Player.Token.MrGreen,1);
+        return game.createPlayer("Jack", Player.Token.MrGreen,1);
     }
 
     /**
@@ -61,8 +61,8 @@ class Main_Tests {
      */
     List<Player> setupTwoMockPlayers(Game game) {
         List<Player> players = new ArrayList<>();
-        players.add(game.addPlayer("jack", Player.Token.MissScarlett, 0));
-        players.add(game.addPlayer("john", Player.Token.MrGreen, 1));
+        players.add(game.createPlayer("jack", Player.Token.MissScarlett, 0));
+        players.add(game.createPlayer("john", Player.Token.MrGreen, 1));
         return players;
     }
 

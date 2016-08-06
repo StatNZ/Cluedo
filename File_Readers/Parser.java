@@ -60,55 +60,55 @@ public class Parser {
                     addToBoard(card.getRoom("Kitchen"), board, row, count++);
                     break;
                 case 'K': //create door kitchen
-                    addToBoard(card.getRoom("Kitchen").addDoor(new Position(row, count)), board, row, count++);
+                    addToBoard(card.getRoom("Kitchen").createDoor(new Position(row, count)), board, row, count++);
                     break;
                 case 'b': // create room
                     addToBoard(card.getRoom("Ball Room"), board, row, count++);
                     break;
                 case 'B': // create door
-                    addToBoard(card.getRoom("Ball Room").addDoor(new Position(row, count)), board, row, count++);
+                    addToBoard(card.getRoom("Ball Room").createDoor(new Position(row, count)), board, row, count++);
                     break;
                 case 'c': // create room
                     addToBoard(card.getRoom("Conservatory"), board, row, count++);
                     break;
                 case 'C': // create door
-                    addToBoard(card.getRoom("Conservatory").addDoor(new Position(row, count)), board, row, count++);
+                    addToBoard(card.getRoom("Conservatory").createDoor(new Position(row, count)), board, row, count++);
                     break;
                 case 'd':
                     addToBoard(card.getRoom("Dining Room"), board, row, count++);
                     break;
                 case 'D':
-                    addToBoard(card.getRoom("Dining Room").addDoor(new Position(row, count)), board, row, count++);
+                    addToBoard(card.getRoom("Dining Room").createDoor(new Position(row, count)), board, row, count++);
                     break;
                 case 'r':
                     addToBoard(card.getRoom("Billiard Room"), board, row, count++);
                     break;
                 case 'R':
-                    addToBoard(card.getRoom("Billiard Room").addDoor(new Position(row, count)), board, row, count++);
+                    addToBoard(card.getRoom("Billiard Room").createDoor(new Position(row, count)), board, row, count++);
                     break;
                 case 'l':
                     addToBoard(card.getRoom("Library"), board, row, count++);
                     break;
                 case 'L':
-                    addToBoard(card.getRoom("Library").addDoor(new Position(row, count)), board, row, count++);
+                    addToBoard(card.getRoom("Library").createDoor(new Position(row, count)), board, row, count++);
                     break;
                 case 'o':
                     addToBoard(card.getRoom("Lounge"), board, row, count++);
                     break;
                 case 'O':
-                    addToBoard(card.getRoom("Lounge").addDoor(new Position(row, count)), board, row, count++);
+                    addToBoard(card.getRoom("Lounge").createDoor(new Position(row, count)), board, row, count++);
                     break;
                 case 'h':
                     addToBoard(card.getRoom("Hall"), board, row, count++);
                     break;
                 case 'H':
-                    addToBoard(card.getRoom("Hall").addDoor(new Position(row, count)), board, row, count++);
+                    addToBoard(card.getRoom("Hall").createDoor(new Position(row, count)), board, row, count++);
                     break;
                 case 't':
                     addToBoard(card.getRoom("Study"), board, row, count++);
                     break;
                 case 'T':
-                    addToBoard(card.getRoom("Study").addDoor(new Position(row, count)), board, row, count++);
+                    addToBoard(card.getRoom("Study").createDoor(new Position(row, count)), board, row, count++);
                     break;
                 case '#':
                     addToBoard(new Room("BLOCKED"), board, row, count++);

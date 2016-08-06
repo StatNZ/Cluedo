@@ -1,13 +1,9 @@
 package Tests;
 
-import GameControl.Card;
 import GameControl.Game;
 import GameControl.Player;
 import GameControl.Room;
 import org.junit.Test;
-
-import java.util.Collection;
-import java.util.Set;
 
 import static junit.framework.TestCase.fail;
 
@@ -76,7 +72,7 @@ public class Test_Invalid {
         Game game = new Game();
 
         try{
-            game.addPlayer("John",null,0);
+            game.createPlayer("John",null,0);
             fail();
 
         }catch (Exception e){

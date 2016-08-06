@@ -27,6 +27,6 @@ public class Door implements Board {
 
     @Override
     public char printArray() {
-        return ' ';
+        return '/';
     }
 }

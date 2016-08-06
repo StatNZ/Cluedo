@@ -43,7 +43,7 @@ public class Game {
                 if (x == p.getPosition().x && y == p.getPosition().y)
                     output += p.playerNumber + " "; // draw our player on the board
 
-                else if (board[x][y] instanceof Room)
+                else if (board[x][y] instanceof Room || board[x][y] instanceof Door)
                     output += board[x][y].printArray() + " "; // draw our rooms on the board
 
                 else
@@ -52,10 +52,10 @@ public class Game {
             }
             output += "\n";
         }
-        output += "\nThe key:\nA = Kitchen,\nB = Ball Room\n" +
-                "C = Conservatory,\nD = Billiard Room,\nE = Library\n," +
-                "F = Study,\nG = Hall,\nH = Lounge,\nI = Dining room\n" +
-                "Number = Current Player\n";
+        output += "\nThe key:\nA = Kitchen,\t\tB = Ball Room\n" +
+                "C = Conservatory,\tD = Billiard Room,\nE = Library,\t\t" +
+                "F = Study,\nG = Hall,\t\t\tH = Lounge,\nI = Dining room\n" +
+                "Number = "+p.toString()+"\n";
         return output;
     }
 
@@ -68,7 +68,7 @@ public class Game {
      * @param name the name the player will take on for the duration of the game
      * @param token the Character assigned token
      */
-    public Player addPlayer(String name, Player.Token token, int playerNum) {
+    public Player createPlayer(String name, Player.Token token, int playerNum) {
         switch (token) {
             case MissScarlett:
                 return new Player(name, token, Parser.playersStartPositions.get(0), playerNum);

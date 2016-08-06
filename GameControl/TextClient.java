@@ -1,7 +1,5 @@
 package GameControl;
 
-import GameControl.Player;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -118,7 +116,7 @@ public class TextClient {
                 token = Player.Token.valueOf(tokenName);
             }
             tokens.remove(token);
-            players.add(game.addPlayer(name, token, i));
+            players.add(game.createPlayer(name, token, i+1));
         }
         return players;
     }
@@ -219,7 +217,6 @@ public class TextClient {
                 // accuse [if you unsuccessfully accuse you are eliminated from the game]
                 // player can accuse anyone anywhere on the board
                 case "accuse":
-                    //debug
                     System.out.println("Player " + player.getName() + " accuses");
                     suggestOptions(player, game, true);
                     return;
@@ -231,6 +228,7 @@ public class TextClient {
 
                 // end this players turn
                 case "end":
+                    clearScreen();
                     return;
 
                 // let the player retry any number of times!
@@ -282,8 +280,10 @@ public class TextClient {
                     // the player has entered a room
                     System.out.println(player.toString()+" has just entered the "+room.getName());
                     suggestOptions(player,game,false);
-                } else // the player did not make it to their chosen room
+                } else { // the player did not make it to their chosen room
+                    clearScreen();
                     System.out.println("\n" + player.toString() + " has moved towards the " + room.toString());
+                }
 
                 return;
             } catch (IllegalArgumentException e) {
@@ -297,23 +297,23 @@ public class TextClient {
         String s = input.substring(0, 1);
         switch (s) {
             case "a":
-                return (Room)game.getRoom("Kitchen");
+                return game.getRoom("Kitchen");
             case "b":
-                return (Room)game.getRoom("Ball Room");
+                return game.getRoom("Ball Room");
             case "c":
-                return (Room)game.getRoom("Conservatory");
+                return game.getRoom("Conservatory");
             case "d":
-                return (Room)game.getRoom("Billiard Room");
+                return game.getRoom("Billiard Room");
             case "e":
-                return (Room)game.getRoom("Library");
+                return game.getRoom("Library");
             case "f":
-                return (Room)game.getRoom("Study");
+                return game.getRoom("Study");
             case "g":
-                return (Room)game.getRoom("Hall");
+                return game.getRoom("Hall");
             case "h":
-                return (Room)game.getRoom("Lounge");
+                return game.getRoom("Lounge");
             case "i":
-                return (Room)game.getRoom("Dining Room");
+                return game.getRoom("Dining Room");
             default:
                 return null;
         }
@@ -349,7 +349,7 @@ public class TextClient {
                         accuseOptions(player, game, character, weapon, r);
                         return;
                     } catch (IllegalArgumentException e) {
-                        throw new IllegalArgumentException(e); // repeat the loop again
+                        throw e; // repeat the loop again
                     }
                 }
 
@@ -366,7 +366,7 @@ public class TextClient {
                 guess.add(weapon);
 
                 // it is essentially the end of the players turn, hide their information
-                createSpace();
+                clearScreen();
 
                 // displays the information on the output of what the current player suggested
                 System.out.println();
@@ -396,7 +396,7 @@ public class TextClient {
      * Creates new lines within our text pane, useful for other players not being able
      * to see a previous players information
      */
-    private static void createSpace() {
+    private static void clearScreen() {
         for (int i = 0; i < 100; i++)
             System.out.println();
     }
@@ -484,7 +484,7 @@ public class TextClient {
             System.exit(0);// exit the program
         } else { // the guess was incorrect therefor the player is excluded
             // clear the screen
-            createSpace();
+            clearScreen();
             System.out.println("Your accusation was incorrect. You have been eliminated");
             excludedPlayers.add(player);
             if (players.size() - excludedPlayers.size() < 2) {

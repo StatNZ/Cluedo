@@ -61,7 +61,7 @@ public class Room extends Card implements Board {
      * @param p the position on where to put the door
      * @return door at the specified position
      */
-    public Door addDoor(Position p) {
+    public Door createDoor(Position p) {
         Door d = new Door(this, p);
         doors.add(d);
         return d;

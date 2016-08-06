@@ -33,8 +33,8 @@ public class Card {
     private String name;
 
     public Card() {
-        setupCards();
-        setupSolution();
+        createCards();
+        createSolution();
         deck.addAll(characters);
         deck.addAll(weapons);
         deck.addAll(rooms);
@@ -55,7 +55,7 @@ public class Card {
      * Here we set up our characters and weapons for our deck of playing
      * deck which our players will keep in their inventory
      */
-    private void setupCards() {
+    private void createCards() {
 
         // create room cards
         rooms.add(new Room("Kitchen"));
@@ -166,7 +166,7 @@ public class Card {
      * Define our solution cards which are randomly chosen and stored in a set.
      * The solution contains 1 Character, 1 Weapon, and 1 Room
      */
-    private void setupSolution() {
+    private void createSolution() {
         Collections.shuffle(rooms);
         Collections.shuffle(characters);
         Collections.shuffle(weapons);
