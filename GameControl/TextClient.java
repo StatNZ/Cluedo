@@ -200,6 +200,7 @@ public class TextClient {
                 // move [player can only move less or equal to the dice roll]
                 // player must choose a room they wish to move close towards
                 case "move":
+                    System.out.println(game.printBoard(player));
                     moveCurrentPlayer(player, nmove, game);
                     return;
 
@@ -279,6 +280,7 @@ public class TextClient {
                 if (game.movePlayer(player, nmove, room)){
                     // the player has entered a room
                     System.out.println(player.toString()+" has just entered the "+room.getName());
+                    printOptions("Notepad",player.printHandAndNotepad());
                     suggestOptions(player,game,false);
                 } else { // the player did not make it to their chosen room
                     clearScreen();
@@ -330,15 +332,16 @@ public class TextClient {
         // player asks question
         while (true) {
             System.out.println("********************");
-            System.out.println("Make a suggestion/accusation");
-            String person = inputString("Was it character?");
-            String tool = inputString("With the weapon");
-            try {
 
+            try {
                 // get the cards corresponding to the input names
+                System.out.println("Make a suggestion/accusation");
                 Card room = player.getRoom();
+                String person = inputString("Was it character?");
                 Card character = game.getCharacter(person);
+                String tool = inputString("With the weapon");
                 Card weapon = game.getWeapon(tool);
+
                 ArrayList<Card> guess = new ArrayList<>();
 
                 // these are instructions for when we accuse

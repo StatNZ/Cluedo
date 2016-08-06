@@ -10,7 +10,7 @@ k****k..B*******B....ccc#
 ddddd..............R****r
 d***dddd..ssssss...r****r
 d******d..ssssss...r****r
-d******D..ssssss...rrrrrr
+d******D..ssssss...rrrrRr
 d******d..ssssss........#
 d******d..ssssss...llLll#
 ddddddDd..ssssss..l*****#
