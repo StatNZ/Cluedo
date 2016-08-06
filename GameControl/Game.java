@@ -54,7 +54,7 @@ public class Game {
         }
         output += "\nThe key:\nA = Kitchen,\t\tB = Ball Room\n" +
                 "C = Conservatory,\tD = Billiard Room,\nE = Library,\t\t" +
-                "F = Study,\nG = Hall,\t\t\tH = Lounge,\nI = Dining room\n" +
+                "F = Study,\nG = Hall,\t\tH = Lounge,\nI = Dining room\n" +
                 "Number = "+p.toString()+"\n";
         return output;
     }

@@ -132,8 +132,7 @@ public class Test_Valid {
         // is no more cards in the deck
 
         for (Player p : players) {
-            System.out.println(p.getHand().size());
-            //assert p.getHand().size() == (18 / players.size());
+            assert p.getHand().size() == (18 / players.size());
         }
     }
 

@@ -168,6 +168,7 @@ public class TextClient {
                 String input = inputString("Would you like to stay here? (y/n)");
 
                 if (input.toLowerCase().startsWith("y")) {
+                	printOptions("Notepad",player.printHandAndNotepad());
                     suggestOptions(player, game, false);
                     return; // end this players turn
                 } // else no player can choose other option
